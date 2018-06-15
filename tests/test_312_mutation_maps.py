@@ -141,7 +141,7 @@ def _write_regions_from_vcf(vcf_iter, vcf_id_generator_fn, int_write_fn, region_
 # check that query_vcf_records and query_process_lines is always the same for all batches and that it is complete
 def test__generate_seq_sets_mutmap_iter():
     from pybedtools import BedTool
-    model_dir = "examples/rbp/"
+    model_dir = "tests/models/rbp/"
     vcf_sub_path = "example_files/variants.vcf"
     vcf_path = model_dir + vcf_sub_path
     vcf_path = kipoi.postprocessing.variant_effects.ensure_tabixed_vcf(vcf_path)
@@ -320,7 +320,7 @@ def test_merged_intervals_seq():
 def test_MutationMapDataMerger():
     if sys.version_info[0] == 2:
         pytest.skip("Skip")
-    model_dir = "examples/rbp/"
+    model_dir = "tests/models/rbp/"
     vcf_sub_path = "example_files/variants.vcf"
     vcf_path = model_dir + vcf_sub_path
     vcf_path = kipoi.postprocessing.variant_effects.ensure_tabixed_vcf(vcf_path)
@@ -403,7 +403,7 @@ def test_mutation_map():
         pytest.skip("rbp example not supported on python 2 ")
 
     # Take the rbp model
-    model_dir = "examples/rbp/"
+    model_dir = "tests/models/rbp/"
     if INSTALL_REQ:
         install_model_requirements(model_dir, "dir", and_dataloaders=True)
 

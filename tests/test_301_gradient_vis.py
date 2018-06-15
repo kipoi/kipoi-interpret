@@ -69,7 +69,7 @@ def test_get_selector():
 
 
 def get_example_data(example, layer, writer=None):
-    example_dir = "examples/{0}".format(example)
+    example_dir = "tests/models/{0}".format(example)
     if INSTALL_REQ:
         install_model_requirements(example_dir, "dir", and_dataloaders=True)
 
@@ -113,7 +113,7 @@ def test_gradplotter():
     if example in {"rbp", "non_bedinput_model", "iris_model_template"} and sys.version_info[0] == 2:
         pytest.skip("rbp example not supported on python 2 ")
 
-    example_dir = "examples/{0}".format(example)
+    example_dir = "tests/models/{0}".format(example)
 
     output = os.path.realpath(example_dir + "/grad_outputs.hdf5")
     try:
@@ -152,11 +152,11 @@ def test__infer_seq_dim():
 def test_verify_model_input():
     import pytest
     from kipoi.postprocessing.gradient_vis.vis import GradPlotter
-    gp = GradPlotter({"inputs": [], "grads": []}, "examples/rbp", source="dir")
+    gp = GradPlotter({"inputs": [], "grads": []}, "tests/models/rbp", source="dir")
     with pytest.raises(Exception):
         gp._verify_model_input(None)
     with pytest.warns(None):
-        gp = GradPlotter({"inputs": [], "grads": []}, "examples/pyt", source="dir")
+        gp = GradPlotter({"inputs": [], "grads": []}, "tests/models/pyt", source="dir")
         assert gp._verify_model_input(None) == 'input'
 
 
@@ -177,7 +177,7 @@ def test_plot():
     from kipoi.postprocessing.gradient_vis.vis import GradPlotter
     # test genomic region subsetting
     example_data = get_example_data("pyt", "3")
-    gp = GradPlotter(example_data, "examples/pyt", source="dir")
+    gp = GradPlotter(example_data, "tests/models/pyt", source="dir")
     # np.random.seed(1)
     # example_data['grads'] = np.random.randn(*example_data['grads'].shape)
 
@@ -207,7 +207,7 @@ def test_plot():
     example_data_cp = copy.deepcopy(example_data)
     example_data_cp['inputs'] = example_data_cp['inputs'][0, ...]
     example_data_cp['grads'] = example_data_cp['grads'][0, ...]
-    gp2 = GradPlotter(example_data_cp, "examples/pyt", source="dir")
+    gp2 = GradPlotter(example_data_cp, "tests/models/pyt", source="dir")
     plt.figure()
     ax_obj = plt.subplot(1, 1, 1)
 
