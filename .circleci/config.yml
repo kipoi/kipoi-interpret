@@ -77,7 +77,7 @@ jobs:
           
 workflows:
   version: 2
-  test-n-deploy:
+  test:
     jobs:
       - test-py36
       - test-py27
