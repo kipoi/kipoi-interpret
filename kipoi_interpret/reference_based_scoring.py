@@ -72,19 +72,42 @@ class MultipleReferencesApi(CompiledApi):
         assert False        
 
 
-class DeepLiftScoringFuncMixin(object): 
+#Other proposal (this object is passed as an argument to compile())
+class DeepLiftScoringFunc(object): 
 
-    def get_scoring_func(self, model, output_layer,
-                               task_idx, preact):
+    def __init__(self, model, output_layer,
+                       task_idx, preact):
         #TODO: create and return the deeplift func, which
         #takes arguments "input_data_list" and "input_references_list"
         assert False
+        #self.compiled_func = blah
 
-    def is_compatible(self, model):
+    def __call__(self, input_data_list, input_references_list):
+        return self.compiled_func(
+                input_data_list=input_data_list, 
+                input_references_list=input_references_list) 
+
+    @classmethod
+    def is_compatible(cls, model):
         #TODO: implement check for required functions
         #specifically, a "save_in_keras2" func that saves in the keras2
         #format, and also test that the conversion works
         assert False
+
+
+#class DeepLiftScoringFuncMixin(object): 
+#
+#    def get_scoring_func(self, model, output_layer,
+#                               task_idx, preact):
+#        #TODO: create and return the deeplift func, which
+#        #takes arguments "input_data_list" and "input_references_list"
+#        assert False
+#
+#    def is_compatible(self, model):
+#        #TODO: implement check for required functions
+#        #specifically, a "save_in_keras2" func that saves in the keras2
+#        #format, and also test that the conversion works
+#        assert False
 
 
 class DeepLiftSingleReference(

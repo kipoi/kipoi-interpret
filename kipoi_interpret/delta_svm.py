@@ -12,6 +12,10 @@ class DeltaSvm(CompiledApi):
         #TODO: implement
         assert False 
 
-    def score_from_cli(self, input_fastas_dataloader, **other_kwargs):
+    def score_from_cli(self, input_fastas_dataloader_config, **other_kwargs):
         #TODO: implement
         assert False 
+
+#Command line call would look like:
+
+#kipoi interpret delta_svm.DeltaSVM --args "{...}"

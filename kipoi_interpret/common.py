@@ -27,9 +27,9 @@ class CompiledApi(object)
         return self._score_func is not None
 
     def compile_if_needed(self, **compilation_kwargs):
-        if (len(optional_compilation_kwargs) > 0):
+        if (len(compilation_kwargs) > 0):
             self.compile(**compilation_kwargs)    
-        if (self.is_compiled() == False):
+        elif (self.is_compiled() == False):
             print("Model was not compiled - attempting compilation")
             self.compile(**compilation_kwargs)
 
