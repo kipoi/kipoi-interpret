@@ -2,31 +2,30 @@ from __future__ import division, absolute_import, print_function
 from .common import CompiledApi
 
 
-class SimpleISM(CompiledApi):
+class JustGrads(CompiledApi):
 
-    def get_scoring_func(self, model, output_layer, task_idx, preact):
+    def get_scoring_func(self, model, **compilation_kwargs):
         #expects a scoring function to be returned with the API:
         #   Inputs:
         #       input_data_list: the input values
         #   Returns:
-        #       The model prediction
-        
-        #todo: Implement me
-        assert False 
+        #       A list of numpy arrays containing the gradients
+        #TODO: implement 
 
-    def score(self, input_onehot_fasta,
+    def is_compatible(self, model):
+        #check the presence of gradients being implemented
+
+    def score(self, input_data_list,
                     batch_size=100, progress_update=None,
                     **compilation_kwargs):
         self.compile_if_needed(**compilation_kwargs)
-        #perturb the sequences according to some rule
-        #call score_func to get new prediction on perturbed seqs
-        #compile the stuff together to get the scores
+        #call score_func accordingly in batches
         #TODO: implement
         assert False
 
-    def score_from_cli(self, input_onehot_fasta_data_loader_config,
+    def score_from_cli(self, input_dataloader_config,
                              io_batch_size=100,
                              **other_kwargs):
-        #read the data to create input_onehot_fasta
+        #read the data loaders into arrays as needed
         #call score_func accordingly
-        assert False        
+        assert False 

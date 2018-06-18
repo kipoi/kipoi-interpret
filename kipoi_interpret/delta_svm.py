@@ -1,5 +1,5 @@
 from __future__ import division, absolute_import, print_function
-from .common_interp_apis import CompiledApi
+from .common import CompiledApi
 
 
 class DeltaSvm(CompiledApi):

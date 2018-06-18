@@ -1,34 +1,5 @@
 from __future__ import division, absolute_import, print_function
-
-#Abstract declaration of different interpretation APIs, plus any
-#common functionality
-
-
-class CompiledApi(object)
-
-    def __init__(self):
-        self._score_func = None
-
-    def compile(self, model, **compilation_kwargs):
-       
-        self._score_func = self.get_scoring_func(model=model,
-                                                 **compilation_kwargs) 
-
-    def get_scoring_func(self, model, **compilation_kwargs):
-        raise NotImplementedError()
-
-    def score(self, **compilation_kwargs):
-        raise NotImplementedError()
-
-    def is_compiled(self):
-        return self._score_func is not None
-
-    def compile_if_needed(self, **compilation_kwargs):
-        if (len(optional_compilation_kwargs) > 0):
-            self.compile(**compilation_kwargs)    
-        if (self.is_compiled() == False):
-            print("Model was not compiled - attempting compilation")
-            self.compile(**compilation_kwargs)
+from .common import CompiledApi
 
 
 class SingleReferenceApi(CompiledApi):
@@ -41,6 +12,9 @@ class SingleReferenceApi(CompiledApi):
         #   Returns:
         #       A list of numpy arrays containing the scores
         raise NotImplementedError()    
+
+    def is_compatible(self, model):
+        raise NotImplementedError()
 
     def score(self, input_data_list,
                     input_references_list,
@@ -72,6 +46,9 @@ class MultipleReferencesApi(CompiledApi):
         #       A list of numpy arrays containing the scores
         raise NotImplementedError()    
 
+    def is_compatible(self, model):
+        raise NotImplementedError()
+
     def score(self, input_data_list,
                     reference_generator,
                     num_refs_per_input,
@@ -93,4 +70,70 @@ class MultipleReferencesApi(CompiledApi):
         #call score_func accordingly
         #TODO: implement
         assert False        
+
+
+class DeepLiftScoringFuncMixin(object): 
+
+    def get_scoring_func(self, model, output_layer,
+                               task_idx, preact):
+        #TODO: create and return the deeplift func, which
+        #takes arguments "input_data_list" and "input_references_list"
+        assert False
+
+    def is_compatible(self, model):
+        #TODO: implement check for required functions
+        #specifically, a "save_in_keras2" func that saves in the keras2
+        #format, and also test that the conversion works
+        assert False
+
+
+class DeepLiftSingleReference(
+        DeepLiftScoringFuncMixin, SingleReferenceApi)
+
+
+class DeepLiftMultipleReferences(
+        DeepLiftScoringFuncMixin, MultipleReferencesApi)
+
+
+class IntGradScoringFuncMixin(object): 
+
+    def get_scoring_func(self, model, output_layer,
+                               task_idx, preact, num_intervals):
+        #num_intervals is the number of intervals for integrated
+        #gradients per example
+        #TODO: create and return the integrated gradient func, which
+        #takes arguments "input_data_list" and "input_references_list"
+        assert False
+
+    def is_compatible(self, model):
+        #TODO: implement check for required functions
+        #(gradients and also possibly activations of the layer if getting
+        # scores on an intermediate layer)
+        assert False
+
+
+class IntGradSingleReference(
+        IntGradScoringFuncMixin, SingleReferenceApi)
+
+
+class IntGradMultipleReferences(
+        IntGradScoringFuncMixin, MultipleReferencesApi)
+
+
+class GradTimeDiffRef(SingleReferenceApi):
+
+    def get_scoring_func(self, model, output_layer, task_idx, preact):
+        #expects a scoring function to be returned with the API:
+        #   Inputs:
+        #       input_data_list: the input values
+        #       input_references_list: the reference values
+        #   Returns:
+        #       A list of numpy arrays containing the scores
+        #TODO: implement something that does grad*diff_ref
+        assert False 
+
+    def is_compatible(self, model):
+        #TODO: implement check for required functions
+        #(just the gradients function)
+        assert False
 
