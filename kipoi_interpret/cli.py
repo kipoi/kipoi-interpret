@@ -8,6 +8,8 @@ import logging
 import os
 import sys
 
+from kipoi_interpret.feature_importance.cli import cli_feature_importance
+
 import kipoi
 from kipoi.cli.parser_utils import add_model, add_dataloader, file_exists, dir_exists
 from kipoi.postprocessing.variant_effects.scores import get_scoring_fns
@@ -416,10 +418,12 @@ def cli_plot_mutation_map(command, raw_args):
 
 
 command_functions = {
-    'grad': cli_grad,
-    'gr_inp_to_file': cli_gr_inp_to_file,  # TODO - rename this to grad_input?
-    'ism': cli_create_mutation_map,
+    'feature_importance': cli_feature_importance,
+
+    # Deprecate
     'plot_mutation_map': cli_plot_mutation_map,
+    # 'gr_inp_to_file': cli_gr_inp_to_file,  # TODO - rename this to grad_input?
+    # 'ism': cli_create_mutation_map,
 }
 commands_str = ', '.join(command_functions.keys())
 
@@ -429,10 +433,7 @@ parser = argparse.ArgumentParser(
     usage='''kipoi interepret <command> [-h] ...
 
     # Available sub-commands:
-    grad                  Save gradients and inputs to a hdf5 file
-    gr_inp_to_file        Save grad*input in a file.
-    ism                   Calculate in-silico mutagenesis scores
-    plot_mutation_map     Plot mutation map from data generated in `create_mutation_map`
+    feature_importance    Compute the feature importance
     ''')
 parser.add_argument('command', help='Subcommand to run; possible commands: {}'.format(commands_str))
 

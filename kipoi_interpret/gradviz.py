@@ -156,8 +156,11 @@ class GradPlotter(object):
             return np.where(sel)[0][0]
         return None
 
-    def _preprocess_values(self, sample, model_input=None, limit_region=None, limit_region_genomic=None,
-                           transform_fn=grad_x_input, seq_dim=None, requires_region_info=False,
+    def _preprocess_values(self, sample, model_input=None,
+                           limit_region=None, limit_region_genomic=None,
+                           transform_fn=grad_x_input,
+                           seq_dim=None,
+                           requires_region_info=False,
                            requires_seq_dim=False):
         def raise_missing_metadata():
             raise Exception("limit_region_genomic can only be used with a `model_input` that has an associated"
@@ -258,7 +261,8 @@ class GradPlotter(object):
 
             return values, is_onehot_seq, mr_chr, mr_start, mr_end, seq_dim
 
-    def plot(self, sample, model_input=None, ax=None, limit_region=None, limit_region_genomic=None, rc_plot=False,
+    def plot(self, sample, model_input=None, ax=None,
+             limit_region=None, limit_region_genomic=None, rc_plot=False,
              transform_fn=grad_x_input, seq_dim=None, additional_plot_fns=None, **heatmap_kwargs):
         """
         Plot grad*input for one sample in the data (batch). If the selected model input is tagged as "DNASequence" and
