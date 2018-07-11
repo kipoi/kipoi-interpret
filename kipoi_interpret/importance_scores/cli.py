@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 
-from kipoi_interpret.feature_importance import available_importance_scores, get_importance_score
+#from kipoi_interpret.feature_importance import available_importance_scores, get_importance_score
 
 from tqdm import tqdm
 import kipoi

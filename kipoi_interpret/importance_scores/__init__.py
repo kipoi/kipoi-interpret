@@ -4,4 +4,4 @@ from . import gradient
 from . import ism
 from . import referencebased
 
-from .base import available_importance_scores, get_importance_score, feature_importance
+from .base import available_methods, get_importance_score, feature_importance

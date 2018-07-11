@@ -1,5 +1,5 @@
 from __future__ import division, absolute_import, print_function
-from .common import ImportanceScore
+from .base import ImportanceScore
 import numpy as np
 
 

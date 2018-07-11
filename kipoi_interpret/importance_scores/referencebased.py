@@ -1,5 +1,5 @@
 from __future__ import division, absolute_import, print_function
-from .common import ImportanceScoreWRef
+from .base import ImportanceScoreWRef
 from .gradient import Gradient
 
 

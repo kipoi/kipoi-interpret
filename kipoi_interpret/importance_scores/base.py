@@ -2,6 +2,7 @@ from __future__ import division, absolute_import, print_function
 from tqdm import tqdm
 from kipoi.utils import merge_dicts
 from kipoi.data_utils import numpy_collate_concat
+import abc
 # Abstract declaration of different interpretation APIs, plus any
 # common functionality
 
@@ -24,7 +25,7 @@ class ImportanceScore(object):
 # Importance score that requires also the reference
 class ImportanceScoreWRef(ImportanceScore):
 
-    @abs.abstractmethod
+    @abc.abstractmethod
     def score(self, input_batch, input_ref):
         # read the data loaders into arrays as needed
         # instantiate the reference generator using the kwargs
