@@ -6,8 +6,6 @@ import numpy as np
 class Gradient(ImportanceScore):
 
     def __init__(self, model,
-                 model_input=None,
-                 model_output=None,
                  filter_idx=None,
                  avg_func="sum",
                  layer=None,
@@ -16,8 +14,6 @@ class Gradient(ImportanceScore):
         """
         Args:
           model: Kipoi model
-          model_input: Which model input to use (list index or a dictionary name)
-          model_output: Which model output to use (op name)
           layer": Which output layer to use to make the predictions. If not specified, the final layer will be used.
           pre_nonlinearity: boolean flag indicating that it should checked whether the selected output is post activation
                    function. If a non-linear activation function is used attempt to use its input.
@@ -28,7 +24,6 @@ class Gradient(ImportanceScore):
              index. Not necessarily supported by all models.
         """
         self.model = model
-        self.model_input = model_input
 
         self.filter_idx = filter_idx
         self.avg_func = avg_func
