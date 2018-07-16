@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 
-from kipoi_interpret.feature_importance.cli import cli_feature_importance
+from kipoi_interpret.importance_scores.cli import cli_feature_importance
 
 import kipoi
 from kipoi.cli.parser_utils import add_model, add_dataloader, file_exists, dir_exists
