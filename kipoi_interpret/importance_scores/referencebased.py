@@ -10,10 +10,22 @@ import numpy as np
 
 # Other proposal (this object is passed as an argument to compile())
 class DeepLift(ImportanceScoreWRef):
+    """
+    Wrapper around DeepLIFT
+    """
 
     def __init__(self, model, output_layer,
                  task_idx, preact, mxts_mode = 'rescale_conv_revealcancel_fc',
                  batch_size = 32):
+        """
+        Args:
+          model: Kipoi model 
+          output_layer: selected Keras layer with respect to which the scores should be calculated - integer 
+          task_idx: Node/Neuron within the selected layer with respect to which the score should be calculated - integer 
+          preact: !NOT YET IMPLEMENTED! Use values prior to activation - for now the default is True! 
+          mxts_mode: Selected score 
+          batch_size: Batch size for scoring 
+        """
         from deeplift.conversion import kerasapi_conversion as kc
         from deeplift.layers import NonlinearMxtsMode
 
@@ -101,7 +113,13 @@ class DeepLift(ImportanceScoreWRef):
         return backend == "tensorflow"
 
     def score(self, input_batch, input_ref):
-        #from deeplift.util import run_function_in_batches
+        """
+        Calculate DeepLIFT scores of a given input sequence.
+        Args:
+          input_batch: Model input data 
+        Returns:
+          DeepLIFT scores in the same shape / same containers as the input batch.
+        """
         x_standardized = self.model._batch_to_list(input_batch)
         ref_standaradized = None
         if input_ref is not None:
@@ -132,6 +150,14 @@ class DeepLift(ImportanceScoreWRef):
         return scores
 
     def predict_on_batch(self, input_batch):
+        """
+        Function that can be used to check the successful model conversion. The output of this function should match 
+        the output of the original model when executing .predict(input_batch)
+        Args:
+          input_batch: Model input data 
+        Returns:
+          Model predictions
+        """
         from deeplift.util import run_function_in_batches
         from deeplift.util import compile_func
         x_standardized = self.model._batch_to_list(input_batch)

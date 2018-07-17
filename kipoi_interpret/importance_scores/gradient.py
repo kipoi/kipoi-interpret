@@ -45,6 +45,13 @@ class Gradient(ImportanceScore):
         return False
 
     def score(self, input_batch):
+        """
+        Calculate gradients of a given input sequence.
+        Args:
+          input_batch: Model input data 
+        Returns:
+          Gradients in the same shape / same containers as the input batch.
+        """
         return self.model.input_grad(input_batch,
                                      filter_idx=self.filter_idx,
                                      avg_func=self.avg_func,
@@ -58,7 +65,7 @@ class Saliency(Gradient):
 
     def score(self, input_batch):
         # TODO - apply the abs function to all list/dict elements if necessary
-        return np.abs(super().score(self, input_batch))
+        return np.abs(super(Saliency, self).score(self, input_batch))
 
 
 METHODS = {"saliency": Saliency,

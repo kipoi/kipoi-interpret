@@ -43,7 +43,8 @@ def test_score():
 
 def test_mutate():
     example = np.array([[0,0,1,0], [0,1,0,0]])
-    for ret, idxs in Mutation.mutate_sample(example):
+    m = Mutation(DummyModel(), "dat1", ['diff'])
+    for ret, idxs in m.mutate_sample(example):
         assert example[idxs[0], idxs[1]] == 0
         kept_sel = np.arange(example.shape[0]) != idxs[0]
         sel_j = np.arange(example.shape[1]) == idxs[1]
@@ -55,4 +56,4 @@ def test_mutate():
 def test_is_compatible():
     is_compat_model = kipoi.get_model("DeepSEA/variantEffects")
     m = Mutation(is_compat_model, "dat1", ['diff'])
-    assert m.is_compatible()
+    assert m.is_compatible(is_compat_model)

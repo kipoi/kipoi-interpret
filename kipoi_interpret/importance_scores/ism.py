@@ -4,9 +4,9 @@ import numpy as np
 from kipoi.data_utils import numpy_collate_concat, numpy_collate
 from kipoi_interpret.utils import get_model_input, set_model_input
 from kipoi.data_utils import get_dataset_item
-from kipoi_interpret.utils import apply_within, get_model_input_special_type
-from kipoi.components import ArraySpecialType
+from kipoi_interpret.utils import apply_within
 from .ism_scores import Score
+import copy
 
 
 def parse_score_str(score, **init_kwargs):
@@ -16,15 +16,22 @@ def parse_score_str(score, **init_kwargs):
         return Score.from_string(score)(**init_kwargs)
 
 
-def parse_scores(scores):
-    return [parse_score_str(score) for score in scores]
+def parse_scores(scores, score_kwargs):
+    if score_kwargs is not None:
+        if not len(scores) == len(score_kwargs):
+            raise Exception("If score_kwargs is not none then at least an empty dictionary has to be passed for "
+                            "every entry in `scores`.")
+        return [parse_score_str(score, **kwargs) for score, kwargs in zip(scores, score_kwargs)]
+    else:
+        return [parse_score_str(score) for score in scores]
 
 
 class Mutation(ImportanceScore):
-    """ISM for working with one-hot encoded inputs
+    """ISM for working with one-hot encoded inputs. 
     """
 
-    def __init__(self, model, model_input, scores=['diff'], score_kwargs=None, batch_size=32, output_sel_fn = None):
+    def __init__(self, model, model_input, scores=['diff'], score_kwargs=None, batch_size=32, output_sel_fn = None,
+                 category_dim = 1):
         """
         Args:
           model: Kipoi model
@@ -32,26 +39,35 @@ class Mutation(ImportanceScore):
           scores: a list of score names or score instances
           batch_size: batch size for calls to prediction. This is independent from the size of batch
             used with the `score` method.
+          score_kwargs: Initialisation keyword arguments for `scores`. If not None then it is a list of kwargs 
+            dictionaries of the same length as `scores`
+          output_sel_fn: Function used to select a model output. Only the selected output will be reported as a return 
+            value.
+          category_dim: Dimension in which the the one-hot category is stored. e.g. for a one-hot encoded DNA-sequence
+            array with input shape (1000, 4) for a single sample, `category_dim` is 1, for (4, 1000) `category_dim`
+            is 0. In the given dimension only one value is allowed to be non-zero, which is the selected one.
         """
         self.model = model
         self.model_input = model_input
         self.batch_size = batch_size
-        self.scores = parse_scores(scores)
+        self.scores = parse_scores(scores, score_kwargs)
         self.output_sel_fn = output_sel_fn
+        self.category_dim = category_dim
 
-    def is_compatible(self):
-        return get_model_input_special_type(self.model, self.model_input) is ArraySpecialType.DNASeq
+    def is_compatible(self, model):
+        return True
 
-    @staticmethod
-    def mutate_sample(onehot_input):
-        for i in range(onehot_input.shape[0]):
-            for j in range(onehot_input.shape[1]):
-                if onehot_input[i, j] == 1:
-                    continue
-                output_onehot = onehot_input.copy()
-                output_onehot[i, :] = 0
-                output_onehot[i, j] = 1
-                yield output_onehot, (i, j,)
+    def mutate_sample(self, onehot_input):
+        it = np.ndenumerate(onehot_input)
+        for idx, in_val in it:
+            if in_val == 1:
+                continue
+            zero_sel = list(idx)
+            zero_sel[self.category_dim] = slice(None)
+            output_onehot = onehot_input.copy()
+            output_onehot.__setitem__(tuple(zero_sel), 0)
+            output_onehot.__setitem__(idx, 1)
+            yield output_onehot, idx
 
     def mutate_sample_batched(self, onehot_input):
         return_samples = []
@@ -68,9 +84,15 @@ class Mutation(ImportanceScore):
 
 
     def score(self, input_batch):
-        # perturb the sequences according to some rule
-        # call score_func to get new prediction on perturbed seqs
-        # compile the stuff together to get the scores
+        """
+        Args:
+          input_batch: Input batch that should be scored.
+                
+        Returns:
+          A list of length: len(`scores`). Every element of the list is a stacked list of depth D if the model input
+          is D-dimensional with identcal shape. Every entry of that list then contains the scores of the model output 
+          selected by `output_sel_fn`. Values are `None` if the input_batch already had a `1` at that position.
+        """
 
         ref = self.model.predict_on_batch(input_batch)
         scores = []
@@ -85,7 +107,8 @@ class Mutation(ImportanceScore):
             # get the one-hot encoded reference input array
             input_sample = get_model_input(sample_set, input_id=self.model_input)
             # where we keep the scores - scores are lists (ordered by diff method) of ndarrays, lists or dictionaries - whatever is returned by the model
-            score = [[None for _2 in range(input_sample.shape[1])] for _ in range(input_sample.shape[0])]
+            score = np.empty(input_sample.shape, dtype=object)
+            score[:] = None
             for alt_batch, alt_idxs in self.mutate_sample_batched(input_sample):
                 #
                 num_samples = len(alt_batch)
@@ -99,11 +122,8 @@ class Mutation(ImportanceScore):
                         alt_sample = self.output_sel_fn(alt_sample)
                     # Apply scores across all model outputs for ref and alt
                     output_scores = [apply_within(ref_sample_pred, alt_sample, scr) for scr in self.scores]
-                    ### TODO: Implement a function that 1) will select a score 2) can summarise the model output
-                    ### TODO: (ctd.) to a single value! For now just return as is
-                    idx_i, idx_j = alt_idxs[alt_sample_i]
-                    score[idx_i][idx_j] = output_scores
-            scores.append(score)
+                    score.__setitem__(alt_idxs[alt_sample_i], output_scores)
+            scores.append(score.tolist())
 
         return scores
 
