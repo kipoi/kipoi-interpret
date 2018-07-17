@@ -26,8 +26,6 @@ class DeepLift(ImportanceScoreWRef):
                           'guided_backprop': NonlinearMxtsMode.GuidedBackprop}
             return mxts_modes[mode_name]
 
-        # TODO: create and return the deeplift func, which
-        # takes arguments "input_data_list" and "input_references_list"
         self.model = model
         if not self.is_compatible(model):
             raise Exception("Model not compatible with DeepLift")
@@ -42,6 +40,11 @@ class DeepLift(ImportanceScoreWRef):
             ofh.write(model.model.to_json())
         self.deeplift_model = kc.convert_model_from_saved_files(weight_f, json_file=arch_f,
                                                                 nonlinear_mxts_mode=get_mxts_mode(mxts_mode))
+
+        # TODO this code may be useful for future when functional models can be handled too
+        self.input_layer_idxs = [0]
+        self.output_layers_idxs = [-1]
+        """
         input_names = self.model._get_feed_input_names()
         self.input_layer_idxs = []
         self.output_layers_idxs = []
@@ -50,8 +53,18 @@ class DeepLift(ImportanceScoreWRef):
             for i, l in enumerate(self.model.model.layers):
                 if l.name == input_layer_name:
                     self.input_layer_idxs.append(i)
+        """
 
         self.fwd_predict_fn = None
+
+        # Now try to find the correct layer:
+        if not isinstance(output_layer, int):
+            raise Exception("output_layer has to be an integer index of the Keras layer in the Keras model.")
+
+        # TODO: DeepLIFT does not guarantee that the layer naming recapitulates the Keras layer order.
+        if output_layer < 0:
+            output_layer = len(model.model.layers) + output_layer
+        target_layer_idx = [i for i,l in enumerate(self.deeplift_model.get_layers()) if l.name == str(output_layer)][0]
 
         # Compile the function that computes the contribution scores
         # For sigmoid or softmax outputs, target_layer_idx should be -2 (the default)
@@ -61,15 +74,11 @@ class DeepLift(ImportanceScoreWRef):
         # If you want the DeepLIFT multipliers instead of the contribution scores, you can use get_target_multipliers_func
         self.deeplift_contribs_func = self.deeplift_model.get_target_contribs_func(
             find_scores_layer_idx=self.input_layer_idxs,
-            target_layer_idx=output_layer)
+            target_layer_idx=target_layer_idx)
 
 
     @classmethod
     def is_compatible(cls, model):
-        # TODO: implement check for required functions
-        # specifically, a "save_in_keras2" func that saves in the keras2
-        # format, and also test that the conversion works
-
         if model.type != "keras":
             # Support only keras models
             return False
@@ -78,6 +87,10 @@ class DeepLift(ImportanceScoreWRef):
         import keras.backend as K
 
         if not keras.__version__.startswith("2.0."):
+            return False
+
+        # Can only support sequential model since the layer ordering is not 1:1
+        if not isinstance(model.model, keras.Sequential):
             return False
 
         # TODO - check the Keras version
@@ -100,6 +113,7 @@ class DeepLift(ImportanceScoreWRef):
                                                  batch_size=self.batch_size,
                                                  progress_update=1000)
 
+        # TODO DeepLIFT error when using batched execution:
         """
         # run_function_in_batches fails for 
         scores = run_function_in_batches(
@@ -122,19 +136,22 @@ class DeepLift(ImportanceScoreWRef):
         from deeplift.util import compile_func
         x_standardized = self.model._batch_to_list(input_batch)
         if self.fwd_predict_fn is None:
+            # TODO: Once DeepLIFT layer annotation works integrate it here too:
+            """
             # identify model output layers:
             self.output_layers_idxs = []
             for output_name in self.model.model.output_names:
                 for i, l in enumerate(self.model.model.layers):
                     if l.name == output_name:
                         self.output_layers_idxs.append(i)
+            """
             inputs = [self.deeplift_model.get_layers()[i].get_activation_vars() for i in self.input_layer_idxs]
-            outputs = [self.deeplift_model.get_layers()[-1].get_activation_vars()]
-            deeplift_prediction_func = compile_func(inputs,outputs)
+            outputs = [self.deeplift_model.get_layers()[i].get_activation_vars() for i in self.output_layers_idxs]
+            self.fwd_predict_fn = compile_func(inputs,outputs)
 
         preds = run_function_in_batches(
             input_data_list=x_standardized,
-            func=deeplift_prediction_func,
+            func=self.fwd_predict_fn,
             batch_size=self.batch_size,
             progress_update=None)
 
