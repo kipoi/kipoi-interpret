@@ -44,7 +44,7 @@ setup(
     extras_require={
         "develop": test_requirements,
     },
-    entry_points={'console_scripts': ['kipoi_interpret = kipoi.cli:cli_main']},
+    # entry_points={'console_scripts': ['kipoi_interpret = kipoi_interpret.cli:cli_main']},
     license="MIT license",
     zip_safe=False,
     keywords=["model zoo", "deep learning",
