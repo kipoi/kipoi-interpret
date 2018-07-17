@@ -24,6 +24,10 @@ variables:
         git checkout plugin  # test already the future version of Kipoi
         pip install '.[develop]'
         cd ..
+  install_kipoi_interpret: &install_kipoi_interpret
+    run:
+      name: Install Kipoi-interpret
+      command: pip install '.[develop]'
   install_requests: &install_requests
     run:
       name: Install requirements for requests correctly
@@ -62,6 +66,7 @@ jobs:
       - *update_conda
       - *install_pip_deps
       - *install_kipoi
+      - *install_kipoi_interpret
       # - *kipoi_ls
       - *run_tests
       - *run_coveralls
@@ -77,6 +82,7 @@ jobs:
       - *update_conda
       - *install_pip_deps
       - *install_kipoi
+      - *install_kipoi_interpret
       # - *kipoi_ls
       - *run_tests
       - *store_test_results
