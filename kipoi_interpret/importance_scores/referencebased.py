@@ -8,6 +8,15 @@ import tempfile
 import numpy as np
 
 
+def get_mxts_modes():
+    from deeplift.layers import NonlinearMxtsMode
+    mxts_modes = {'rescale_conv_revealcancel_fc': NonlinearMxtsMode.DeepLIFT_GenomicsDefault,
+                          'revealcancel_all_layers': NonlinearMxtsMode.RevealCancel,
+                          'rescale_all_layers': NonlinearMxtsMode.Rescale,
+                          'grad_times_inp': NonlinearMxtsMode.Gradient,
+                          'guided_backprop': NonlinearMxtsMode.GuidedBackprop}
+    return mxts_modes
+
 # Other proposal (this object is passed as an argument to compile())
 class DeepLift(ImportanceScoreWRef):
     """
@@ -27,16 +36,10 @@ class DeepLift(ImportanceScoreWRef):
           batch_size: Batch size for scoring 
         """
         from deeplift.conversion import kerasapi_conversion as kc
-        from deeplift.layers import NonlinearMxtsMode
 
         def get_mxts_mode(mode_name):
             # Labels from examples:
-            mxts_modes = {'rescale_conv_revealcancel_fc': NonlinearMxtsMode.DeepLIFT_GenomicsDefault,
-                          'revealcancel_all_layers': NonlinearMxtsMode.RevealCancel,
-                          'rescale_all_layers': NonlinearMxtsMode.Rescale,
-                          'grad_times_inp': NonlinearMxtsMode.Gradient,
-                          'guided_backprop': NonlinearMxtsMode.GuidedBackprop}
-            return mxts_modes[mode_name]
+            return get_mxts_modes()[mode_name]
 
         self.model = model
         if not self.is_compatible(model):

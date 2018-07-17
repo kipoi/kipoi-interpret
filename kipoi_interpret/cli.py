@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 
-from kipoi_interpret.importance_scores.cli import cli_feature_importance
+from kipoi_interpret.importance_scores.cli import cli_feature_importance, cli_deeplift, cli_ism
 
 import kipoi
 from kipoi.cli.parser_utils import add_model, add_dataloader, file_exists, dir_exists
@@ -55,7 +55,7 @@ def cli_grad(command, raw_args):
     from kipoi.model import GradientMixin
     assert command == "grad"
     from tqdm import tqdm
-    parser = argparse.ArgumentParser('kipoi {}'.format(command),
+    parser = argparse.ArgumentParser('kipoi interpret {}'.format(command),
                                      description='Save gradients and inputs to a hdf5 file.')
     add_model(parser)
     add_dataloader(parser, with_args=True)
@@ -185,66 +185,15 @@ def cli_grad(command, raw_args):
     logger.info('Done! Gradients stored in {0}'.format(",".join(args.output)))
 
 
-def cli_gr_inp_to_file(command, raw_args):
-    """ CLI to save seq inputs of grad*input to a bigwig file
-    """
-    assert command == "gr_inp_to_file"
-    parser = argparse.ArgumentParser('kipoi interpret {}'.format(command),
-                                     description='Save grad*input in a file.')
-    add_model(parser)
-    add_dataloader(parser, with_args=True)
-    parser.add_argument('-f', '--input_file', required=False,
-                        help="Input HDF5 file produced from `grad`")
-    parser.add_argument('-o', '--output', required=False,
-                        help="Output bigwig for bedgraph file")
-    parser.add_argument('--sample', required=False, type=int, default=None,
-                        help="Input line for which the BigWig file should be generated. If not defined all"
-                             "samples will be written.")
-    parser.add_argument('--model_input', required=False, default=None,
-                        help="Model input name to be used for plotting. " +
-                        "As defined in model.yaml. Can be omitted if" +
-                        "model only has one input.")
-    args = parser.parse_args(raw_args)
-
-    # Check that all the folders exist
-    dir_exists(os.path.dirname(args.output), logger)
-    # --------------------------------------------
-    # install args
-    from kipoi_interpret.gradviz import GradPlotter
-    from kipoi.writers import BedGraphWriter
-
-    logger.info('Loading gradient results file and model info...')
-
-    gp = GradPlotter.from_hdf5(args.input_file, model=args.model, source=args.source)
-
-    if args.sample is not None:
-        samples = [args.sample]
-    else:
-        samples = list(range(gp.get_num_samples(args.model_input)))
-
-    if args.output.endswith(".bed") or args.output.endswith(".bedgraph"):
-        of_obj = BedGraphWriter(args.output)
-    else:
-        raise Exception("Output file format not supported!")
-
-    logger.info('Writing...')
-
-    for sample in samples:
-        gp.write(sample, model_input=args.model_input, writer_obj=of_obj)
-
-    logger.info('Saving...')
-
-    of_obj.close()
-
-    logger.info('Successfully wrote grad*input to file.')
-
-
 # --------------------------------------------
 # CLI commands
 
 
 command_functions = {
-    'feature_importance': cli_feature_importance,
+    'grad': cli_grad,
+    'deeplift': cli_deeplift,
+    'ism': cli_ism,
+
 
     # Deprecate
     # 'gr_inp_to_file': cli_gr_inp_to_file,  # TODO - rename this to grad_input?
@@ -255,7 +204,7 @@ commands_str = ', '.join(command_functions.keys())
 # TODO - shall we call the grad commands: saliency?
 parser = argparse.ArgumentParser(
     description='Kipoi model-zoo command line tool',
-    usage='''kipoi interepret <command> [-h] ...
+    usage='''kipoi interpret <command> [-h] ...
 
     # Available sub-commands:
     feature_importance    Compute the feature importance

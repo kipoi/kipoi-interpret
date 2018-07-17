@@ -28,7 +28,8 @@ test_requirements = [
     "cython",
     # "genomelake",
     "keras",
-    "tensorflow"
+    "tensorflow",
+    "deeplift",
 ]
 
 setup(

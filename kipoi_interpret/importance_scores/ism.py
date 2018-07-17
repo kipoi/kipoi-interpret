@@ -83,6 +83,22 @@ class Mutation(ImportanceScore):
             yield return_samples, return_indexes
 
 
+    def get_correct_model_input_id(self, id):
+        model_inputs =  self.model.schema.inputs
+        if isinstance(model_inputs, dict):
+            return id
+        elif isinstance(model_inputs, list):
+            if isinstance(id, int):
+                return id
+            else:
+                int_id = [i for i, el in enumerate(model_inputs) if el.name == id]
+                if len(int_id) != 1:
+                    raise Exception("Could not find model input %s."%id)
+                return int_id[0]
+        else:
+            return 0
+
+
     def score(self, input_batch):
         """
         Args:
@@ -96,7 +112,7 @@ class Mutation(ImportanceScore):
 
         ref = self.model.predict_on_batch(input_batch)
         scores = []
-        for sample_i in range(input_batch[self.model_input].shape[0]):
+        for sample_i in range(input_batch[self.get_correct_model_input_id(self.model_input)].shape[0]):
             # get the full set of model inputs for the selected sample
             sample_set = get_dataset_item(input_batch, sample_i)
             # get the reference output for this sample
@@ -105,7 +121,7 @@ class Mutation(ImportanceScore):
             if self.output_sel_fn is not None:
                 ref_sample_pred = self.output_sel_fn(ref_sample_pred)
             # get the one-hot encoded reference input array
-            input_sample = get_model_input(sample_set, input_id=self.model_input)
+            input_sample = get_model_input(sample_set, input_id=self.get_correct_model_input_id(self.model_input))
             # where we keep the scores - scores are lists (ordered by diff method) of ndarrays, lists or dictionaries - whatever is returned by the model
             score = np.empty(input_sample.shape, dtype=object)
             score[:] = None
@@ -113,7 +129,8 @@ class Mutation(ImportanceScore):
                 #
                 num_samples = len(alt_batch)
                 mult_set = numpy_collate([sample_set]*num_samples)
-                mult_set = set_model_input(mult_set, numpy_collate(alt_batch), input_id=self.model_input)
+                mult_set = set_model_input(mult_set, numpy_collate(alt_batch), input_id=
+                    self.get_correct_model_input_id(self.model_input))
                 alt = self.model.predict_on_batch(mult_set)
                 for alt_sample_i in range(num_samples):
                     alt_sample = get_dataset_item(alt, alt_sample_i)

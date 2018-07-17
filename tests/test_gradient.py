@@ -34,7 +34,10 @@ def nested_assert(obj1, obj2):
         for el1, el2 in zip(obj1, obj2):
             nested_assert(el1, el2)
     else:
-        assert np.all(obj1 == obj2)
+        if np.issubdtype(obj1.dtype, np.number):
+            assert np.isclose(obj1, obj2)
+        else:
+            assert np.all(obj1 == obj2)
 
 def assert_hdf5_sim(f1, f2):
     obj1 = readers.HDF5Reader.load(f1)
