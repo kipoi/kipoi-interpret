@@ -12,7 +12,9 @@ variables:
   install_pip_deps: &install_pip_deps
     run:
       name: Install pip dependencies
-      command: pip install genomelake --no-deps
+      command: |
+        pip install genomelake --no-deps
+	pip install pyfaidx
   install_kipoi: &install_kipoi
     run:
       name: Install Kipoi-interepret
@@ -30,7 +32,7 @@ variables:
       name: Run tests
       command: |
         mkdir test-reports
-        py.test --cov=kipoi-interpret/ tests/ -n 4 --no-cov-on-fail --junitxml=test-reports/junit.xml
+        py.test --cov=kipoi_interpret/ tests/ -n 4 --no-cov-on-fail --junitxml=test-reports/junit.xml
   run_coveralls: &run_coveralls
     run:
       name: run coveralls
