@@ -64,6 +64,7 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_git_lfs
       - *install_pip_deps
       - *install_kipoi
       - *install_kipoi_interpret
@@ -80,6 +81,7 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_git_lfs
       - *install_pip_deps
       - *install_kipoi
       - *install_kipoi_interpret
