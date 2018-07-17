@@ -11,6 +11,7 @@ requirements = [
     "seaborn",
     # sometimes required
     "h5py",
+    "deeplift",
 ]
 
 test_requirements = [
