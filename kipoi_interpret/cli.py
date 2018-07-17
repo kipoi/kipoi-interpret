@@ -1,4 +1,4 @@
-"""Postprocessing CLI
+"""CLI
 """
 from __future__ import absolute_import
 from __future__ import print_function
@@ -12,7 +12,6 @@ from kipoi_interpret.importance_scores.cli import cli_feature_importance
 
 import kipoi
 from kipoi.cli.parser_utils import add_model, add_dataloader, file_exists, dir_exists
-from kipoi.postprocessing.variant_effects.scores import get_scoring_fns
 from kipoi import writers
 from kipoi.utils import cd
 from kipoi.utils import parse_json_file_str
@@ -190,7 +189,7 @@ def cli_gr_inp_to_file(command, raw_args):
     """ CLI to save seq inputs of grad*input to a bigwig file
     """
     assert command == "gr_inp_to_file"
-    parser = argparse.ArgumentParser('kipoi postproc {}'.format(command),
+    parser = argparse.ArgumentParser('kipoi interpret {}'.format(command),
                                      description='Save grad*input in a file.')
     add_model(parser)
     add_dataloader(parser, with_args=True)
@@ -248,7 +247,6 @@ command_functions = {
     'feature_importance': cli_feature_importance,
 
     # Deprecate
-    'plot_mutation_map': cli_plot_mutation_map,
     # 'gr_inp_to_file': cli_gr_inp_to_file,  # TODO - rename this to grad_input?
     # 'ism': cli_create_mutation_map,
 }
