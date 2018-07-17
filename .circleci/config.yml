@@ -14,7 +14,7 @@ variables:
       name: Install pip dependencies
       command: |
         pip install genomelake --no-deps
-	pip install pyfaidx
+        pip install pyfaidx
   install_kipoi: &install_kipoi
     run:
       name: Install Kipoi-interepret
