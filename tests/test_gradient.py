@@ -1,15 +1,15 @@
 import kipoi
 import pytest
 from pytest import raises
+import numpy as np
 from kipoi.components import ModelSchema
 from related import from_yaml
 import config
 import sys
 
-INSTALL_REQ = config.install_req
+
 from kipoi.pipeline import install_model_requirements
 import json
-from kipoi.utils import cd
 from tqdm import tqdm
 from kipoi import writers, readers
 from kipoi.cli.main import prepare_batch
@@ -19,11 +19,13 @@ import numpy as np
 import copy
 from kipoi_interpret.importance_scores.gradient import Gradient
 
+INSTALL_REQ = config.install_req
 predict_activation_layers = {
     "rbp": "concatenate_6",
     "tal1_model": "dense_1"
     # "pyt": "3"  # two before the last layer
 }
+
 
 def nested_assert(obj1, obj2):
     assert type(obj1) == type(obj2)
@@ -34,12 +36,17 @@ def nested_assert(obj1, obj2):
         for el1, el2 in zip(obj1, obj2):
             nested_assert(el1, el2)
     else:
-        assert np.all(obj1 == obj2)
+        if obj1.dtype == np.dtype('O'):
+            assert np.all(obj1 == obj2)
+        else:
+            np.allclose(obj1, obj2)
+
 
 def assert_hdf5_sim(f1, f2):
     obj1 = readers.HDF5Reader.load(f1)
     obj2 = readers.HDF5Reader.load(f2)
     nested_assert(obj1, obj2)
+
 
 def test_score():
     example = "tal1_model"
@@ -65,7 +72,7 @@ def test_score():
 
     writer = writers.HDF5BatchWriter(file_path=model.source_dir + "/example_files/grads_pred.hdf5")
 
-    with cd(model.source_dir):
+    with kipoi.utils.cd(model.source_dir):
         dl = Dataloader(**dataloader_arguments)
         it = dl.batch_iter(batch_size=32, num_workers=0)
         # Loop through the data, make predictions, save the output
@@ -77,7 +84,8 @@ def test_score():
             writer.batch_write(output_batch)
         writer.close()
 
-    assert_hdf5_sim(model.source_dir + "/example_files/grads_pred.hdf5", model.source_dir + "/example_files/grads.hdf5")
+    assert_hdf5_sim(model.source_dir + "/example_files/grads_pred.hdf5",
+                    model.source_dir + "/example_files/grads.hdf5")
 
     if os.path.exists(model.source_dir + "/example_files/grads_pred.hdf5"):
         os.unlink(model.source_dir + "/example_files/grads_pred.hdf5")
