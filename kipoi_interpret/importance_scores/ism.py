@@ -24,7 +24,7 @@ class Mutation(ImportanceScore):
     """ISM for working with one-hot encoded inputs
     """
 
-    def __init__(self, model, model_input, scores=['diff'], score_kwargs=None, batch_size=32):
+    def __init__(self, model, model_input, scores=['diff'], score_kwargs=None, batch_size=32, output_sel_fn = None):
         """
         Args:
           model: Kipoi model
@@ -37,6 +37,7 @@ class Mutation(ImportanceScore):
         self.model_input = model_input
         self.batch_size = batch_size
         self.scores = parse_scores(scores)
+        self.output_sel_fn = output_sel_fn
 
     def is_compatible(self):
         return get_model_input_special_type(self.model, self.model_input) is ArraySpecialType.DNASeq
@@ -78,6 +79,9 @@ class Mutation(ImportanceScore):
             sample_set = get_dataset_item(input_batch, sample_i)
             # get the reference output for this sample
             ref_sample_pred = get_dataset_item(ref, sample_i)
+            # Apply the output selection function if defined
+            if self.output_sel_fn is not None:
+                ref_sample_pred = self.output_sel_fn(ref_sample_pred)
             # get the one-hot encoded reference input array
             input_sample = get_model_input(sample_set, input_id=self.model_input)
             # where we keep the scores - scores are lists (ordered by diff method) of ndarrays, lists or dictionaries - whatever is returned by the model
@@ -90,6 +94,10 @@ class Mutation(ImportanceScore):
                 alt = self.model.predict_on_batch(mult_set)
                 for alt_sample_i in range(num_samples):
                     alt_sample = get_dataset_item(alt, alt_sample_i)
+                    # Apply the output selection function if defined
+                    if self.output_sel_fn is not None:
+                        alt_sample = self.output_sel_fn(alt_sample)
+                    # Apply scores across all model outputs for ref and alt
                     output_scores = [apply_within(ref_sample_pred, alt_sample, scr) for scr in self.scores]
                     ### TODO: Implement a function that 1) will select a score 2) can summarise the model output
                     ### TODO: (ctd.) to a single value! For now just return as is

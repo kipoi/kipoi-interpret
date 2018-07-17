@@ -166,7 +166,7 @@ class DeepLift(ImportanceScoreWRef):
 class IntegratedGradients(ImportanceScoreWRef, Gradient):
 
     def score(self, input_batch, input_ref):
-        grads = super().score(input_batch)
+        grads = super(IntegratedGradients, self).score(input_batch)
         # TODO implement integrated gradients
         # https://github.com/marcoancona/DeepExplain/blob/master/deepexplain/tensorflow/methods.py#L208-L225
         pass
@@ -177,7 +177,7 @@ class GradientXInput(ImportanceScoreWRef, Gradient):
 
     def score(self, input_batch, input_ref):
         # TODO - handle also the case where input_ref is not a simple array but a list
-        return super().score(input_batch) * input_ref
+        return super(GradientXInput, self).score(input_batch) * input_ref
 
 
 METHODS = {"deeplift": DeepLift,

@@ -25,6 +25,20 @@ def test_score():
                     smpl_diff = smpl[i][j][0]  # select the score i,j and the score 0 which is 'diff' here
                     model_out_diff = smpl_diff['dat1']
                     assert np.all(model_out_diff[i,:] == exp)
+    # test with selector_fn
+    sel_fn = lambda x: x['dat1']
+    m = Mutation(DummyModel(), "dat1", ['diff'], output_sel_fn=sel_fn)
+    scores_ret = m.score(batch_input)
+    for smpl_i, smpl in enumerate(scores_ret):
+        for i in range(len(smpl)):
+            for j in range(len(smpl[i])):
+                exp =  (np.arange(0, 4) == j).astype(int) - batch_input['dat1'][smpl_i, i,:]
+                if np.all(exp==0):
+                    assert smpl[i][j] is None
+                else:
+                    smpl_diff = smpl[i][j][0]  # select the score i,j and the score 0 which is 'diff' here
+                    model_out_diff = smpl_diff
+                    assert np.all(model_out_diff[i,:] == exp)
 
 
 def test_mutate():
