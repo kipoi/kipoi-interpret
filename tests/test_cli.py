@@ -58,7 +58,7 @@ def test_parse_filter_slice():
 #         bedgraph_temp_file = os.path.realpath(str("./grad_x_input.bed"))
 
 #         # run the
-#         args = ["python", "kipoi_interpret",
+#         args = ["python", os.path.abspath("./kipoi_interpret/cli.py"),
 #                 "grad",
 #                 "../",  # directory
 #                 "--source=dir",
@@ -81,7 +81,7 @@ def test_parse_filter_slice():
 #                 data = HDF5Reader.load(tmpfile)
 #                 assert {'metadata', 'grads', 'inputs'} <= set(data.keys())
 #                 # Here we can attempt to write a bedgraph file:
-#                 bg_args = ["python", "kipoi_interpret",
+#                 bg_args = ["python", os.path.abspath("./kipoi_interpret/cli.py"),
 #                            "gr_inp_to_file",
 #                            "../",  # directory
 #                            "--source=dir",
