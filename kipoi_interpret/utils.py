@@ -2,12 +2,14 @@ import numpy as np
 import collections
 from collections import OrderedDict
 
+
 def get_model_input_special_type(model, input_id):
     inputs = model.schema.inputs
     if isinstance(inputs, collections.Mapping) or isinstance(inputs, collections.Sequence):
         return inputs[input_id].special_type
     else:
         return inputs.special_type
+
 
 def get_model_input(batch, input_id=None):
     """
@@ -21,6 +23,22 @@ def get_model_input(batch, input_id=None):
         return batch
 
 
+def nested_mul(x, y):
+    """Perform a nested multiplication
+
+    x,y can be either an array, a list of arrays or a dictionary of arrays
+    """
+    if isinstance(x, collections.Mapping):
+        assert isinstance(y, collections.Mapping)
+        assert set(x) == set(y)
+        return {x[k] * y[k] for k in x}
+    elif isinstance(y, list):
+        assert isinstance(y, list)
+        assert len(x) == len(y)
+        return [x[i] * y[i] for i in range(len(x))]
+    else:
+        return x * y
+
 
 def set_model_input(batch, value, input_id=None):
     if isinstance(batch, dict) or isinstance(batch, list):
@@ -29,7 +47,6 @@ def set_model_input(batch, value, input_id=None):
         return batch
     else:
         return value
-
 
 
 def apply_within(data1, data2, function, **kwargs):
