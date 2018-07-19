@@ -15,19 +15,25 @@ class DeepLift(ImportanceScoreWRef):
     """
 
     def __init__(self, model, output_layer,
-                 task_idx, preact, mxts_mode='rescale_conv_revealcancel_fc',
+                 task_idx, preact=True, mxts_mode='rescale_conv_revealcancel_fc',
                  batch_size=32):
         """
         Args:
           model: Kipoi model
-          output_layer (int): selected Keras layer with respect to which the scores should be calculated
-          task_idx (int): Node/Neuron within the selected layer with respect to which the score should be calculated
-          preact: !NOT YET IMPLEMENTED! Use values prior to activation - for now the default is True!
+          output_layer (int): selected Keras layer with respect to which the
+             scores should be calculated
+          task_idx (int): Node/Neuron within the selected layer with respect
+             to which the score should be calculated
+          preact: !NOT YET IMPLEMENTED! Use values prior to activation - for now
+             the default is True!
           mxts_mode: Selected score
           batch_size: Batch size for scoring
         """
         from deeplift.conversion import kerasapi_conversion as kc
         from deeplift.layers import NonlinearMxtsMode
+
+        if not preact:
+            print("preact is not implemented yet")
 
         def get_mxts_mode(mode_name):
             # Labels from examples:
@@ -89,7 +95,7 @@ class DeepLift(ImportanceScoreWRef):
             target_layer_idx=target_layer_idx)
 
     @classmethod
-    def is_compatible(cls, model):
+    def is_compatible(cls, model, verbose=False):
         if model.type != "keras":
             # Support only keras models
             return False
@@ -98,10 +104,14 @@ class DeepLift(ImportanceScoreWRef):
         import keras.backend as K
 
         if not int(keras.__version__.split(".")[0]) == 2:
+            if verbose:
+                print("Keras version not > 2")
             return False
 
         # Can only support sequential model since the layer ordering is not 1:1
         if not isinstance(model.model, keras.Sequential):
+            if verbose:
+                print("Not a sequential model")
             return False
 
         # Backend has to be tensorflow
@@ -109,6 +119,11 @@ class DeepLift(ImportanceScoreWRef):
             backend = K.backend()
         else:
             backend = model.backend
+        if backend != "tensorflow":
+            if verbose:
+                print("Not using a tensorflow backend")
+                return False
+        return True
         return backend == "tensorflow"
 
     def score(self, input_batch, input_ref):
@@ -150,8 +165,8 @@ class DeepLift(ImportanceScoreWRef):
 
     def predict_on_batch(self, input_batch):
         """
-        Function that can be used to check the successful model conversion. The output of this function should match 
-        the output of the original model when executing .predict(input_batch)
+        Function that can be used to check the successful model conversion.
+           The output of this function should match the output of the original model when executing .predict(input_batch)
         Args:
           input_batch: Model input data 
         Returns:
@@ -170,8 +185,10 @@ class DeepLift(ImportanceScoreWRef):
                     if l.name == output_name:
                         self.output_layers_idxs.append(i)
             """
-            inputs = [self.deeplift_model.get_layers()[i].get_activation_vars() for i in self.input_layer_idxs]
-            outputs = [self.deeplift_model.get_layers()[i].get_activation_vars() for i in self.output_layers_idxs]
+            inputs = [self.deeplift_model.get_layers()[i].get_activation_vars()
+                      for i in self.input_layer_idxs]
+            outputs = [self.deeplift_model.get_layers()[i].get_activation_vars()
+                       for i in self.output_layers_idxs]
             self.fwd_predict_fn = compile_func(inputs, outputs)
 
         preds = run_function_in_batches(
@@ -196,14 +213,5 @@ class IntegratedGradients(ImportanceScoreWRef, Gradient):
         pass
 
 
-class GradientXInput(ImportanceScoreWRef, Gradient):
-    # AbstractGrads implements the
-
-    def score(self, input_batch, input_ref):
-        # TODO - handle also the case where input_ref is not a simple array but a list
-        return super(GradientXInput, self).score(input_batch) * input_ref
-
-
 METHODS = {"deeplift": DeepLift,
-           "grad*input": GradientXInput,
            "intgrad": IntegratedGradients}
