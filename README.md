@@ -33,7 +33,7 @@ Gradient * input example
 import kipoi
 model = kipoi.get_model("<my-model>")
 ginp = GradientXInput(model)
-val = ginp.score(seqa)[0]
+val = ginp.score(batch_input)  # val is an array of importance scores
 ```
 
 See [notebooks/1-DNA-seq-model-example.ipynb](notebooks/1-DNA-seq-model-example.ipynb) for an example.
