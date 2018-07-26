@@ -13,7 +13,7 @@ class DummyModel():
 def get_dummy_model():
     dm = DummyModel()
     dm.schema = DummyContainer()
-    dm.schema.inputs = {"dat1"}
+    dm.schema.inputs = {"dat1":None}
     return dm
 
 

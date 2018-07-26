@@ -24,16 +24,16 @@ class DeepLift(ImportanceScoreWRef):
     """
 
     def __init__(self, model, output_layer,
-                 task_idx, preact, mxts_mode = 'rescale_conv_revealcancel_fc',
-                 batch_size = 32):
+                 task_idx, preact, mxts_mode='rescale_conv_revealcancel_fc',
+                 batch_size=32):
         """
         Args:
-          model: Kipoi model 
-          output_layer: selected Keras layer with respect to which the scores should be calculated - integer 
-          task_idx: Node/Neuron within the selected layer with respect to which the score should be calculated - integer 
-          preact: !NOT YET IMPLEMENTED! Use values prior to activation - for now the default is True! 
-          mxts_mode: Selected score 
-          batch_size: Batch size for scoring 
+          model: Kipoi model
+          output_layer (int): selected Keras layer with respect to which the scores should be calculated
+          task_idx (int): Node/Neuron within the selected layer with respect to which the score should be calculated
+          preact: !NOT YET IMPLEMENTED! Use values prior to activation - for now the default is True!
+          mxts_mode: Selected score
+          batch_size: Batch size for scoring
         """
         from deeplift.conversion import kerasapi_conversion as kc
 
@@ -79,7 +79,7 @@ class DeepLift(ImportanceScoreWRef):
         # TODO: DeepLIFT does not guarantee that the layer naming recapitulates the Keras layer order.
         if output_layer < 0:
             output_layer = len(model.model.layers) + output_layer
-        target_layer_idx = [i for i,l in enumerate(self.deeplift_model.get_layers()) if l.name == str(output_layer)][0]
+        target_layer_idx = [i for i, l in enumerate(self.deeplift_model.get_layers()) if l.name == str(output_layer)][0]
 
         # Compile the function that computes the contribution scores
         # For sigmoid or softmax outputs, target_layer_idx should be -2 (the default)
@@ -91,7 +91,6 @@ class DeepLift(ImportanceScoreWRef):
             find_scores_layer_idx=self.input_layer_idxs,
             target_layer_idx=target_layer_idx)
 
-
     @classmethod
     def is_compatible(cls, model):
         if model.type != "keras":
@@ -101,14 +100,14 @@ class DeepLift(ImportanceScoreWRef):
         import keras
         import keras.backend as K
 
-        if not keras.__version__.startswith("2.0."):
+        if not int(keras.__version__.split(".")[0]) == 2:
             return False
 
         # Can only support sequential model since the layer ordering is not 1:1
         if not isinstance(model.model, keras.Sequential):
             return False
 
-        # TODO - check the Keras version
+        # Backend has to be tensorflow
         if model.backend is None:
             backend = K.backend()
         else:
@@ -129,10 +128,10 @@ class DeepLift(ImportanceScoreWRef):
             ref_standaradized = self.model._batch_to_list(input_ref)
 
         scores = self.deeplift_contribs_func(task_idx=self.task_idx,
-                                                 input_data_list=x_standardized,
-                                                 input_references_list = ref_standaradized,
-                                                 batch_size=self.batch_size,
-                                                 progress_update=1000)
+                                             input_data_list=x_standardized,
+                                             input_references_list=ref_standaradized,
+                                             batch_size=self.batch_size,
+                                             progress_update=1000)
 
         # TODO DeepLIFT error when using batched execution:
         """
@@ -176,7 +175,7 @@ class DeepLift(ImportanceScoreWRef):
             """
             inputs = [self.deeplift_model.get_layers()[i].get_activation_vars() for i in self.input_layer_idxs]
             outputs = [self.deeplift_model.get_layers()[i].get_activation_vars() for i in self.output_layers_idxs]
-            self.fwd_predict_fn = compile_func(inputs,outputs)
+            self.fwd_predict_fn = compile_func(inputs, outputs)
 
         preds = run_function_in_batches(
             input_data_list=x_standardized,
@@ -186,10 +185,9 @@ class DeepLift(ImportanceScoreWRef):
 
         preds = np.array(preds)
         if len(self.output_layers_idxs) == 1:
-            preds = preds[0,...]
+            preds = preds[0, ...]
 
         return preds
-
 
 
 class IntegratedGradients(ImportanceScoreWRef, Gradient):

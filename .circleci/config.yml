@@ -8,7 +8,9 @@ variables:
   install_git_lfs: &install_git_lfs
     run:
       name: Install git-lfs
-      command: conda install --yes -c conda-forge git-lfs
+      command: |
+        conda install --yes -c conda-forge git-lfs
+        cp .circleci/gitconfig ~/.gitconfig
   install_pip_deps: &install_pip_deps
     run:
       name: Install pip dependencies
@@ -22,8 +24,12 @@ variables:
         git clone git@github.com:kipoi/kipoi.git kipoi_pkg
         cd kipoi_pkg
         git checkout plugin  # test already the future version of Kipoi
-        pip install '.[develop]'
+        pip install '.'
         cd ..
+  install_kipoi_interpret: &install_kipoi_interpret
+    run:
+      name: Install Kipoi-interpret
+      command: pip install '.[develop]'
   install_requests: &install_requests
     run:
       name: Install requirements for requests correctly
@@ -60,9 +66,11 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_git_lfs
       - *install_pip_deps
       - *install_kipoi
-      # - *kipoi_ls
+      - *install_kipoi_interpret
+      - *kipoi_ls
       - *run_tests
       - *run_coveralls
       - *store_test_results
@@ -75,9 +83,11 @@ jobs:
     steps:
       - checkout
       - *update_conda
+      - *install_git_lfs
       - *install_pip_deps
       - *install_kipoi
-      # - *kipoi_ls
+      - *install_kipoi_interpret
+      - *kipoi_ls
       - *run_tests
       - *store_test_results
       - *store_test_artifacts

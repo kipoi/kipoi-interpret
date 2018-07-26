@@ -6,7 +6,6 @@ import config
 INSTALL_REQ = config.install_req
 from kipoi.pipeline import install_model_requirements
 import json
-from kipoi.utils import cd
 from tqdm import tqdm
 from kipoi import writers, readers
 import numpy as np
@@ -21,7 +20,7 @@ predict_activation_layers = {
 
 
 def test_deeplift():
-    #return True
+    # return True
     example = "tal1_model"
     layer = predict_activation_layers[example]
     example_dir = "tests/models/{0}".format(example)
@@ -38,7 +37,7 @@ def test_deeplift():
     for k in dataloader_arguments:
         dataloader_arguments[k] = "example_files/" + dataloader_arguments[k]
 
-    d = DeepLift(model, output_layer=-2, task_idx=0, preact=None, mxts_mode = 'grad_times_inp')
+    d = DeepLift(model, output_layer=-2, task_idx=0, preact=None, mxts_mode='grad_times_inp')
 
     new_ofname = model.source_dir + "/example_files/deeplift_grads_pred.hdf5"
     if os.path.exists(new_ofname):
@@ -46,7 +45,7 @@ def test_deeplift():
 
     writer = writers.HDF5BatchWriter(file_path=new_ofname)
 
-    with cd(model.source_dir):
+    with kipoi.utils.cd(model.source_dir):
         dl = Dataloader(**dataloader_arguments)
         it = dl.batch_iter(batch_size=32, num_workers=0)
         # Loop through the data, make predictions, save the output

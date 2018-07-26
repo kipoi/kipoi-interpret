@@ -31,7 +31,7 @@ class Mutation(ImportanceScore):
     """
 
     def __init__(self, model, model_input, scores=['diff'], score_kwargs=None, batch_size=32, output_sel_fn = None,
-                 category_dim = 1):
+                 category_dim = 1, test_ref_ref=False):
         """
         Args:
           model: Kipoi model
@@ -46,6 +46,7 @@ class Mutation(ImportanceScore):
           category_dim: Dimension in which the the one-hot category is stored. e.g. for a one-hot encoded DNA-sequence
             array with input shape (1000, 4) for a single sample, `category_dim` is 1, for (4, 1000) `category_dim`
             is 0. In the given dimension only one value is allowed to be non-zero, which is the selected one.
+          test_ref_ref: Also perform ISM on the positions where the input data has a 1 already.
         """
         self.model = model
         self.model_input = model_input
@@ -53,6 +54,7 @@ class Mutation(ImportanceScore):
         self.scores = parse_scores(scores, score_kwargs)
         self.output_sel_fn = output_sel_fn
         self.category_dim = category_dim
+        self.test_ref_ref = test_ref_ref
 
     def is_compatible(self, model):
         return True
@@ -60,7 +62,7 @@ class Mutation(ImportanceScore):
     def mutate_sample(self, onehot_input):
         it = np.ndenumerate(onehot_input)
         for idx, in_val in it:
-            if in_val == 1:
+            if (in_val == 1) and (not self.test_ref_ref):
                 continue
             zero_sel = list(idx)
             zero_sel[self.category_dim] = slice(None)

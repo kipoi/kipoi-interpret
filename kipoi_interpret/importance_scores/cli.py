@@ -331,7 +331,8 @@ def cli_ism(command, raw_args):
             sys.exit(1)
 
     m = Mutation(model, args.model_input, scores=args.scores, score_kwargs=args.score_kwargs,
-                 batch_size=args.batch_size, output_sel_fn=None, category_dim=args.category_dim)
+                 batch_size=args.batch_size, output_sel_fn=None, category_dim=args.category_dim,
+                 test_ref_ref = True)
     # Loop through the data, make predictions, save the output
     for i, batch in enumerate(tqdm(it)):
         # validate the data schema in the first iteration
@@ -341,12 +342,13 @@ def cli_ism(command, raw_args):
         # calculate scores without reference for the moment.
         pred_batch = m.score(batch['inputs'])
 
-        # write out the predictions, metadata (, inputs, targets)
-        # always keep the inputs so that input*grad can be generated!
-        # output_batch = prepare_batch(batch, pred_batch, keep_inputs=True)
-        output_batch = batch
+        # with the current writers it's not possible to store the scores and the model inputs in the same file
+        output_batch = {}
         output_batch["scores"] = pred_batch
+
         for writer in use_writers:
+            import pdb
+            pdb.set_trace()
             writer.batch_write(output_batch)
 
     for writer in use_writers:
