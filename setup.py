@@ -34,7 +34,7 @@ test_requirements = [
 
 setup(
     name='kipoi_interpret',
-    version='0.3.6',
+    version='0.1.0',
     description="Kipoi interpret: interepretation plugin for Kipoi",
     author="Kipoi team",
     author_email='avsec@in.tum.de',
@@ -45,7 +45,7 @@ setup(
     extras_require={
         "develop": test_requirements,
     },
-    entry_points={'console_scripts': ['kipoi_interpret = kipoi.cli:cli_main']},
+    # entry_points={'console_scripts': ['kipoi_interpret = kipoi_interpret.cli:cli_main']},
     license="MIT license",
     zip_safe=False,
     keywords=["model zoo", "deep learning",

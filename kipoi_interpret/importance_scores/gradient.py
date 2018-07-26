@@ -1,5 +1,6 @@
 from __future__ import division, absolute_import, print_function
 from .base import ImportanceScore
+from ..utils import nested_mul
 import numpy as np
 
 
@@ -14,13 +15,17 @@ class Gradient(ImportanceScore):
         """
         Args:
           model: Kipoi model
-          layer": Which output layer to use to make the predictions. If not specified, the final layer will be used.
-          pre_nonlinearity: boolean flag indicating that it should checked whether the selected output is post activation
-                   function. If a non-linear activation function is used attempt to use its input.
-          filter_idx: Filter index that should be inspected with gradients. If not set all filters will be used.
-          avg_func: Averaging function to be applied across selected filters (`--filter_idx`) in layer `--layer`."
-          selected_fwd_node: If the selected layer has multiple inbound connections in
-             the graph then those can be selected here with an integer
+          layer": Which output layer to use to make the predictions.
+             If not specified, the final layer will be used.
+          pre_nonlinearity: boolean flag indicating that it should checked
+             whether the selected output is post activation function.
+             If a non-linear activation function is used attempt to use its input.
+          filter_idx: Filter index that should be inspected with gradients.
+             If not set all filters will be used.
+          avg_func: Averaging function to be applied across selected filters
+             (`--filter_idx`) in layer `--layer`."
+          selected_fwd_node: If the selected layer has multiple inbound
+             connections in the graph then those can be selected here with an integer
              index. Not necessarily supported by all models.
         """
         self.model = model
@@ -48,7 +53,7 @@ class Gradient(ImportanceScore):
         """
         Calculate gradients of a given input sequence.
         Args:
-          input_batch: Model input data 
+          input_batch: Model input data
         Returns:
           Gradients in the same shape / same containers as the input batch.
         """
@@ -61,6 +66,14 @@ class Gradient(ImportanceScore):
                                      pre_nonlinearity=self.pre_nonlinearity)
 
 
+class GradientXInput(Gradient):
+    # AbstractGrads implements the
+
+    def score(self, input_batch):
+        return nested_mul(super(GradientXInput, self).score(input_batch),
+                          input_batch)
+
+
 class Saliency(Gradient):
 
     def score(self, input_batch):
@@ -69,4 +82,5 @@ class Saliency(Gradient):
 
 
 METHODS = {"saliency": Saliency,
+           "grad*input": GradientXInput,
            "grad": Gradient}

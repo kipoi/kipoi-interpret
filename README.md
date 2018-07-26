@@ -12,17 +12,39 @@ pip install kipoi_interpret
 
 ## Usage example
 
- few motivating and useful examples of how your product can be used. Spice this up with code blocks and potentially more screenshots.
-
-_For more examples and usage, please refer to the docs._
-
-## Development setup
-
-Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms.
-
-```sh
-TODO
+```python
+# list all available methods
+kipoi_interpret.importance_scores.available_methods()
 ```
+
+Available methods:
+```python
+# Gradient-based methods
+from kipoi_interpret.importance_scores.gradient import Gradient, GradientXInput
+# In-silico mutagenesis-based methods
+from kipoi_interpret.importance_scores.ism import Mutation
+# DeepLift
+from kipoi_interpret.importance_scores.referencebased import DeepLift
+```
+
+Gradient * input example
+```python
+# seqa = one-hot-encoded DNA sequence
+import kipoi
+model = kipoi.get_model("<my-model>")
+ginp = GradientXInput(model)
+val = ginp.score(batch_input)  # val is an array of importance scores
+```
+
+See [notebooks/1-DNA-seq-model-example.ipynb](notebooks/1-DNA-seq-model-example.ipynb) for an example.
+
+<!-- ## Development setup -->
+
+<!-- Describe how to install all development dependencies and how to run an automated test-suite of some kind. Potentially do this for multiple platforms. -->
+
+<!-- ```sh -->
+<!-- TODO -->
+<!-- ``` -->
 
 
 ## Release History
