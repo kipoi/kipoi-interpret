@@ -154,6 +154,6 @@ def test_mutate():
 
 
 def test_is_compatible():
-    is_compat_model = kipoi.get_model("DeepSEA/variantEffects")
+    is_compat_model = kipoi.get_model("tests/models/pyt", "dir")
     m = Mutation(is_compat_model, "dat1", ['diff'])
     assert m.is_compatible(is_compat_model)
