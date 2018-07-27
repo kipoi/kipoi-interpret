@@ -123,9 +123,8 @@ class Mutation(ImportanceScore):
         ref = self.model.predict_on_batch(input_batch)
         scores = []
 
-        #for sample_i in range(len(get_model_input(input_batch,self.model_input))):
-        # TODO: this will not work for a numpy array, consider using the get_model_input function
-        for sample_i in range(input_batch[self.get_correct_model_input_id(self.model_input)].shape[0]):
+        model_input_id = self.get_correct_model_input_id(self.model_input)
+        for sample_i in range(get_model_input(input_batch, input_id=model_input_id).shape[0]):
             # get the full set of model inputs for the selected sample
             sample_set = get_dataset_item(input_batch, sample_i)
 
@@ -137,7 +136,7 @@ class Mutation(ImportanceScore):
                 ref_sample_pred = self.output_sel_fn(ref_sample_pred)
 
             # get the one-hot encoded reference input array
-            input_sample = get_model_input(sample_set, input_id=self.get_correct_model_input_id(self.model_input))
+            input_sample = get_model_input(sample_set, input_id=model_input_id)
 
             # where we keep the scores - scores are lists (ordered by diff
             # method of ndarrays, lists or dictionaries - whatever is returned by the model
@@ -148,7 +147,7 @@ class Mutation(ImportanceScore):
                 num_samples = len(alt_batch)
                 mult_set = numpy_collate([sample_set] * num_samples)
                 mult_set = set_model_input(mult_set, numpy_collate(alt_batch),
-                            input_id= self.get_correct_model_input_id(self.model_input))
+                            input_id= model_input_id)
                 alt = self.model.predict_on_batch(mult_set)
                 for alt_sample_i in range(num_samples):
                     alt_sample = get_dataset_item(alt, alt_sample_i)

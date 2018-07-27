@@ -122,13 +122,18 @@ def test_deeplift_predict_example():
 
 
 @pytest.mark.parametrize("example", list(predict_activation_layers))
-def test_ism_predict_example(example):
+@pytest.mark.parametrize("use_output_sel", [False, True])
+def test_ism_predict_example(example, use_output_sel):
     """kipoi grad ...
     """
     if example in {"rbp", "non_bedinput_model", "iris_model_template"} and sys.version_info[0] == 2:
         pytest.skip("rbp example not supported on python 2 ")
 
     example_dir = "tests/models/{0}".format(example)
+    if example == "rbp":
+        model_input_name = "seq"
+    else:
+        model_input_name = "input"
 
     for file_format in ["tsv", "hdf5"]:
         print(example)
@@ -140,9 +145,12 @@ def test_ism_predict_example(example):
                 "../",  # directory
                 "--source=dir",
                 "--batch_size=4",
-                "--model_input=seq",
+                "--model_input="+ model_input_name,
                 "--dataloader_args=test.json",
                 "--output", tmpfile]
+
+        if use_output_sel:
+            args.append("--output_sel_fn=out_sel_fn.py::sel")
 
         if INSTALL_FLAG:
             args.append(INSTALL_FLAG)
@@ -151,8 +159,6 @@ def test_ism_predict_example(example):
         if os.path.exists(tmpfile):
             os.unlink(tmpfile)
 
-        import pdb
-        pdb.set_trace()
         returncode = subprocess.call(args=args, cwd=os.path.realpath(example_dir + "/example_files"))
         assert returncode == 0
 

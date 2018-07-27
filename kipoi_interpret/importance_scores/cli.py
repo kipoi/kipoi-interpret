@@ -14,7 +14,8 @@ from tqdm import tqdm
 import kipoi
 from kipoi.cli.parser_utils import add_model, add_dataloader, file_exists, dir_exists
 from kipoi import writers
-from kipoi.utils import parse_json_file_str
+from kipoi.utils import parse_json_file_str, load_module
+import numpy as np
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
@@ -270,10 +271,16 @@ def cli_ism(command, raw_args):
                              "individual JSONs are expected to be supplied in the same order as the labels defined in "
                              "--scores. If the defaults or no arguments should be used define '{}' for that respective "
                              "scoring method.")
-    parser.add_argument("-c", "--category_dim", help="Using the selected model input with `--model_input`: Which "
-                                                     "dimension of that array contains the one-hot encoded categories? e.g. for a one-hot encoded DNA-sequence"
-                                                     "array with input shape (1000, 4) for a single sample, `category_dim` is 1, for (4, 1000) `category_dim`"
+    parser.add_argument("-c", "--category_axis", help="Using the selected model input with `--model_input`: Which "
+                                                     "dimension of that array contains the one-hot encoded categories?"
+                                                      " e.g. for a one-hot encoded DNA-sequence"
+                                                     "array with input shape (1000, 4) for a single sample, "
+                                                      "`category_dim` is 1, for (4, 1000) `category_dim`"
                                                      "is 0.", default=1, type =int, required=False)
+    parser.add_argument("-f", "--output_sel_fn", help="Define an output selection function in order to return effects"
+                                                      "on the output of the function. example definitoin: "
+                                                      "`--output_sel_fn my_file.py::my_sel_fn`", default=None,
+                                                      required = False)
     parser.add_argument('-o', '--output', required=True, nargs="+",
                         help="Output files. File format is inferred from the file path ending. "
                              "Available file formats are: " +
@@ -330,10 +337,19 @@ def cli_ism(command, raw_args):
             logger.error("Unknown file format: {0}".format(ending))
             sys.exit(1)
 
+    output_sel_fn = None
+    if args.output_sel_fn is not None:
+        file_path, obj_name = tuple(args.output_sel_fn.split("::"))
+        output_sel_fn = getattr(load_module(file_path), obj_name)
+
     m = Mutation(model, args.model_input, scores=args.scores, score_kwargs=args.score_kwargs,
-                 batch_size=args.batch_size, output_sel_fn=None, category_dim=args.category_dim,
+                 batch_size=args.batch_size, output_sel_fn=output_sel_fn, category_axis=args.category_axis,
                  test_ref_ref = True)
-    # Loop through the data, make predictions, save the output
+
+    out_batches = {}
+
+    # Loop through the data, make predictions, save the output..
+    # TODO: batch writer fails because it tries to concatenate on highest dimension rather than the lowest!
     for i, batch in enumerate(tqdm(it)):
         # validate the data schema in the first iteration
         if i == 0 and not Dl.output_schema.compatible_with_batch(batch):
@@ -346,12 +362,19 @@ def cli_ism(command, raw_args):
         output_batch = {}
         output_batch["scores"] = pred_batch
 
-        for writer in use_writers:
-            import pdb
-            pdb.set_trace()
-            writer.batch_write(output_batch)
+        for k in output_batch:
+            if k not in out_batches:
+                out_batches[k] = []
+            out_batches[k].append(output_batch[k])
+
+    # concatenate batches:
+    full_output = {k: np.concatenate([np.array(el) for el in v])for k,v in out_batches.items()}
+    logger.info('Full output shape: {0}'.format(str(full_output["scores"].shape)))
+
+    for writer in use_writers:
+        writer.batch_write(full_output)
 
     for writer in use_writers:
         writer.close()
-    logger.info('Done! Gradients stored in {0}'.format(",".join(args.output)))
+    logger.info('Done! ISM stored in {0}'.format(",".join(args.output)))
 
