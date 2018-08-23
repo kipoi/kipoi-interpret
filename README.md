@@ -1,8 +1,13 @@
 # kipoi_interpret
 > Model interepretation plugin for Kipoi.
 
-[![CircleCI](https://circleci.com/gh/kipoi/kipoi-interpret.svg?style=svg)](https://circleci.com/gh/kipoi/kipoi-interpret)
-[![Coverage Status](https://coveralls.io/repos/github/kipoi/kipoi-interpret/badge.svg?branch=master)](https://coveralls.io/github/kipoi/kipoi-interpret?branch=master)
+<a href='https://circleci.com/gh/kipoi/kipoi-interpret'>
+	<img alt='CircleCI' src='https://circleci.com/gh/kipoi/kipoi-interpret.svg?style=svg' style="max-height:20px;width:auto">
+</a>
+<a href=https://coveralls.io/github/kipoi/kipoi-interpret?branch=master>
+	<img alt='Coverage status' src=https://coveralls.io/repos/github/kipoi/kipoi-interpret/badge.svg?branch=master style="max-height:20px;width:auto;">
+</a>
+
 
 ## Installation
 

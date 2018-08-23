@@ -111,6 +111,7 @@ jobs:
           name: Build docs
           command: |
             cd docs/
+            mkdir -p theme_dir/img
             ./render_ipynb.bash
             pydocmd build
       - run:
