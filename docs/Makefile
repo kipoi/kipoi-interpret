@@ -8,7 +8,7 @@ help:
 	@echo "  push       push the repository to ouga"
 
 build:
-	mkdir -p theme_dir/img
+	mkdir -p theme_dir/img/ipynb/
 	./render_ipynb.bash
 	pydocmd build
 	@echo "Build finished"
