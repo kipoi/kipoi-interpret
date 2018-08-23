@@ -20,7 +20,7 @@ for file in $(cat ipynb_pages.txt); do
     jupyter nbconvert --to markdown ../notebooks/${file}.ipynb --output-dir sources/${DIR}/
 
     file_out=sources/${DIR}/${file}.md
-    dir_out=sources/${DIR}/${file}_files
+    dir_out=sources/${DIR}/${file}_files/
 
     # fix the paths for the original images
     sed_replace '![img](../docs/theme_dir/img/' '![img](/interpret-docs/img/' $file_out
