@@ -79,6 +79,7 @@ fi
 
 
 # Add, commit, and push
+echo "Pusing the repository"
 echo ".*" >> .gitignore
 git config user.name "Circle-CI-kipoi"
 git config user.email "${GITHUB_USERNAME}@users.noreply.github.com"

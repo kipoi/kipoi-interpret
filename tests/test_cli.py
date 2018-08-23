@@ -54,30 +54,31 @@ def test_grad_predict_example(example, tmpdir):
 
     for file_format in ["tsv", "hdf5"]:
         print(example)
-        tmpfile = os.path.join(str(tmpdir), os.path.realpath(str("./grad_outputs.{0}".format(file_format))))
 
-        # run the
-        args = ["python", os.path.abspath("./kipoi_interpret/cli.py"),
-                "grad",
-                "../",  # directory
-                "--source=dir",
-                "--batch_size=4",
-                "--dataloader_args=test.json",
-                "--output", tmpfile]
         layer_args = ["--layer", predict_activation_layers[example], ]
         final_layer_arg = ["--final_layer"]
 
-        if INSTALL_FLAG:
-            args.append(INSTALL_FLAG)
+        for i, la in enumerate([layer_args, final_layer_arg]):
 
-        for la in [layer_args, final_layer_arg]:
+            tmpfile = os.path.join(str(tmpdir), os.path.realpath(str("./grad_outputs.{0}.{1}".format(i, file_format))))
+            # run the
+            args = ["python", os.path.abspath("./kipoi_interpret/cli.py"),
+                    "grad",
+                    "../",  # directory
+                    "--source=dir",
+                    "--batch_size=4",
+                    "--dataloader_args=test.json",
+                    "--output", tmpfile]
+
+            if i == 0 and INSTALL_FLAG:
+                args.append(INSTALL_FLAG)
             if os.path.exists(tmpfile):
                 os.unlink(tmpfile)
             returncode = subprocess.call(args=args + la, cwd=os.path.realpath(example_dir + "/example_files"))
             assert returncode == 0
 
             # Circle-ci is rediciulous about this
-            #assert os.path.exists(tmpfile)
+            # assert os.path.exists(tmpfile)
 
             if os.path.exists(tmpfile):
                 os.unlink(tmpfile)
