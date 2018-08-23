@@ -30,28 +30,27 @@ def parse_scores(scores, score_kwargs):
 
 class Mutation(ImportanceScore):
     """ISM for working with one-hot encoded inputs.
+
+    # Arguments
+      model: Kipoi model
+      model_input: which model input to mutate
+      scores: a list of score names or score instances
+      batch_size: batch size for calls to prediction. This is independent from the size of batch
+        used with the `score` method.
+      score_kwargs: Initialisation keyword arguments for `scores`. If not None then it is a list of kwargs 
+        dictionaries of the same length as `scores`
+      output_sel_fn: Function used to select a model output. Only the selected output will be reported as a return 
+        value.
+      id_value: Which value to use for the identity
+      category_axis: Dimension in which the the one-hot category is stored. e.g. for a one-hot encoded DNA-sequence
+        array with input shape (1000, 4) for a single sample, `category_axis` is 1, for (4, 1000) `category_axis`
+        is 0. In the given dimension only one value is allowed to be non-zero, which is the selected one.
+      test_ref_ref: Also perform ISM on the positions where the input data has a 1 already.
     """
 
     def __init__(self, model, model_input, scores=['diff'],
                  score_kwargs=None, batch_size=32, output_sel_fn=None,
                  id_value=0, category_axis=1, test_ref_ref=False):
-        """
-        Args:
-          model: Kipoi model
-          model_input: which model input to mutate
-          scores: a list of score names or score instances
-          batch_size: batch size for calls to prediction. This is independent from the size of batch
-            used with the `score` method.
-          score_kwargs: Initialisation keyword arguments for `scores`. If not None then it is a list of kwargs 
-            dictionaries of the same length as `scores`
-          output_sel_fn: Function used to select a model output. Only the selected output will be reported as a return 
-            value.
-          id_value: Which value to use for the identity
-          category_axis: Dimension in which the the one-hot category is stored. e.g. for a one-hot encoded DNA-sequence
-            array with input shape (1000, 4) for a single sample, `category_axis` is 1, for (4, 1000) `category_axis`
-            is 0. In the given dimension only one value is allowed to be non-zero, which is the selected one.
-          test_ref_ref: Also perform ISM on the positions where the input data has a 1 already.
-        """
         self.model = model
         self.model_input = model_input
         self.batch_size = batch_size
@@ -60,7 +59,6 @@ class Mutation(ImportanceScore):
         self.id_value = id_value
         self.category_axis = category_axis
         self.test_ref_ref = test_ref_ref
-
 
     def is_compatible(self, model):
         return True
@@ -91,7 +89,7 @@ class Mutation(ImportanceScore):
             yield return_samples, return_indexes
 
     def get_correct_model_input_id(self, id):
-        model_inputs =  self.model.schema.inputs
+        model_inputs = self.model.schema.inputs
         if isinstance(model_inputs, dict):
             return id
         elif isinstance(model_inputs, list):
@@ -100,7 +98,7 @@ class Mutation(ImportanceScore):
             else:
                 int_id = [i for i, el in enumerate(model_inputs) if el.name == id]
                 if len(int_id) != 1:
-                    raise Exception("Could not find model input %s."%id)
+                    raise Exception("Could not find model input %s." % id)
                 return int_id[0]
         else:
             if id == 0 or id == model_inputs.name:
@@ -109,11 +107,11 @@ class Mutation(ImportanceScore):
 
     def score(self, input_batch):
         """
-        Args:
+        # Arguments
           input_batch: Input batch that should be scored.
 
-        Returns:
-          A list of length: len(`scores`). Every element of the list is
+        # Returns
+          list: list of length `len(scores)`. Every element of the list is
              a stacked list of depth D if the model input is D-dimensional
              with identcal shape. Every entry of that list then contains the
              scores of the model output selected by `output_sel_fn`. Values
@@ -147,7 +145,7 @@ class Mutation(ImportanceScore):
                 num_samples = len(alt_batch)
                 mult_set = numpy_collate([sample_set] * num_samples)
                 mult_set = set_model_input(mult_set, numpy_collate(alt_batch),
-                            input_id= model_input_id)
+                                           input_id=model_input_id)
                 alt = self.model.predict_on_batch(mult_set)
                 for alt_sample_i in range(num_samples):
                     alt_sample = get_dataset_item(alt, alt_sample_i)

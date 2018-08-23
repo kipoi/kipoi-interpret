@@ -1,0 +1,18 @@
+docs_dir: sources
+pages:
+- {Home: index.md}
+- Tutorials:
+  - {DNA-seq model: tutorials/1-DNA-seq-model-example.md}
+- API:
+  - {available_methods: api/imp/base/available_methods.md}
+  - {feature_importance: api/imp/base/feature_importance.md}
+- Importance scores:
+  - {Gradient: api/imp/gradient/Gradient.md}
+  - {GradientXInput: api/imp/gradient/GradientXInput.md}
+  - {Saliency: api/imp/gradient/Saliency.md}
+  - {Mutation: api/imp/ism/Mutation.md}
+  - {DeepLift: api/imp/referencebased/DeepLift.md}
+repo_url: http://github.com/kipoi/kipoi-interpret
+site_dir: site
+site_name: Kipoi-interpret
+theme: {custom_dir: theme_dir, name: readthedocs}

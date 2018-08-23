@@ -1,0 +1,87 @@
+site_name: Kipoi-interpret
+
+# ------- readthedocs ---------
+theme:
+ name: readthedocs
+ custom_dir: theme_dir
+extra_css: [css/extra.css]
+# --------------------------
+repo_url: http://github.com/kipoi/kipoi-interpret
+site_url: http://kipoi.org/docs/interpret/
+edit_uri: edit/master/docs/templates/
+site_description: 'Documentation of Kipoi-interpret, model interpretation plugin for Kipoi.'
+
+dev_addr: '0.0.0.0:8000'
+
+google_analytics: ["UA-115025493-1", "kipoi.org"]
+# --------------------------------------------
+
+# This tells pydocmd which pages to generate from which Python modules,
+# functions and classes. At the first level is the page name, below that
+# is a tree of Python member names (modules, classes, etc.) that should be
+# documented. Higher indentation leads to smaller header size.
+generate:
+  - api/imp/base/available_methods.md:
+    - kipoi_interpret.importance_scores.base.available_methods
+  - api/imp/base/feature_importance.md:
+    - kipoi_interpret.importance_scores.base.feature_importance
+  - api/imp/gradient/Gradient.md:
+    - kipoi_interpret.importance_scores.gradient.Gradient
+  - api/imp/gradient/GradientXInput.md:
+    - kipoi_interpret.importance_scores.gradient.GradientXInput
+  - api/imp/gradient/Saliency.md:
+    - kipoi_interpret.importance_scores.gradient.Saliency
+  - api/imp/ism/Mutation.md:
+    - kipoi_interpret.importance_scores.ism.Mutation
+    - kipoi_interpret.importance_scores.ism_scores:
+      - kipoi_interpret.importance_scores.ism_scores.Ref
+      - kipoi_interpret.importance_scores.ism_scores.Alt
+      - kipoi_interpret.importance_scores.ism_scores.Diff
+      - kipoi_interpret.importance_scores.ism_scores.LogitRef
+      - kipoi_interpret.importance_scores.ism_scores.LogitAlt
+      - kipoi_interpret.importance_scores.ism_scores.Logit
+      - kipoi_interpret.importance_scores.ism_scores.DeepSEA_effect
+  - api/imp/referencebased/DeepLift.md:
+    - kipoi_interpret.importance_scores.referencebased.DeepLift      
+    
+
+# MkDocs pages configuration. The `<<` operator is sugar added by pydocmd
+# that allows you to use an external Markdown file (eg. your project's README)
+# in the documentation. The path must be relative to current working directory.
+# pages:
+# - Home: index.md << ../README.md
+# - foobar.baz:
+#   - Cool Stuff: baz/cool-stuff.md
+
+pages:
+- Home: index.md << ../README.md
+# - Overview: overview.md
+# - Using: using.md
+- Tutorials: # compiled from ipynb. Listed in ipynb_pages.txt
+  - DNA-seq model: tutorials/1-DNA-seq-model-example.md
+  # - Advanced: tutorials/variant_effect_prediction.md
+  # - Mutation map: tutorials/mutation_map.md
+- API:
+  - available_methods: api/imp/base/available_methods.md
+  - feature_importance: api/imp/base/feature_importance.md
+- Importance scores:
+  - Gradient: api/imp/gradient/Gradient.md
+  - GradientXInput: api/imp/gradient/GradientXInput.md
+  - Saliency: api/imp/gradient/Saliency.md
+  - Mutation: api/imp/ism/Mutation.md
+  - DeepLift: api/imp/referencebased/DeepLift.md
+
+    
+# These options all show off their default values. You don't have to add
+# them to your configuration if you're fine with the default.
+docs_dir: templates
+gens_dir: sources
+site_dir: site
+loader:   pydocmd.loader.PythonLoader
+preprocessor: pydocmd.preprocessor.Preprocessor
+
+# Additional search path for your Python module. If you use Pydocmd from a
+# subdirectory of your project (eg. docs/), you may want to add the parent
+# directory here.
+additional_search_paths:
+- ..

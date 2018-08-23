@@ -37,7 +37,7 @@ class ImportanceScoreWRef(ImportanceScore):
 # --------------------------------------------
 
 def available_methods():
-    """Get all available methods
+    """Get all available importance scores
     """
     from . import ism, gradient, referencebased
     int_modules = [ism, gradient, referencebased]
@@ -70,6 +70,20 @@ def feature_importance(model,
                        batch_size=32,
                        num_workers=0):
     """Return feature importance scores
+
+    # Arguments
+        model: kipoi model (obtained by `kipoi.get_model()`)
+        dataloader: instantiated kipoi dataloder (obtained by `kipoi.get_dataloader_factory()(**dl_kwargs)`
+           or `model.default_dataloader(**dl_kwargs)`
+        importance_score (`str` or `ImportanceScore`): which importance score to use
+        importance_score_kwargs (dict): kwargs passed to the importance score
+        batch_size: run scoring and data-loading in batches
+        num_workers: number of workers for parallel data-loading. Passed to `dataloader.batch_iter(...)`
+
+    # Returns
+        (dict of np.arrays): dataset returned by the dataloader (dict with keys `inputs`, `targets`, `metadata`)
+           but with an additional `importance_scores` key 
+
     """
     ImpScore = get_importance_score(importance_score)
     if not ImpScore.is_compatible(model):

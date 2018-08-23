@@ -5,6 +5,23 @@ import numpy as np
 
 
 class Gradient(ImportanceScore):
+    """Compute the gradient w.r.t. input
+
+    # Arguments
+      model: Kipoi model
+      layer": Which output layer to use to make the predictions.
+         If not specified, the final layer will be used.
+      pre_nonlinearity: boolean flag indicating that it should checked
+         whether the selected output is post activation function.
+         If a non-linear activation function is used attempt to use its input.
+      filter_idx: Filter index that should be inspected with gradients.
+         If not set all filters will be used.
+      avg_func: Averaging function to be applied across selected filters
+         (`--filter_idx`) in layer `--layer`."
+      selected_fwd_node: If the selected layer has multiple inbound
+         connections in the graph then those can be selected here with an integer
+         index. Not necessarily supported by all models.
+    """
 
     def __init__(self, model,
                  filter_idx=None,
@@ -12,22 +29,6 @@ class Gradient(ImportanceScore):
                  layer=None,
                  selected_fwd_node=None,
                  pre_nonlinearity=False):
-        """
-        Args:
-          model: Kipoi model
-          layer": Which output layer to use to make the predictions.
-             If not specified, the final layer will be used.
-          pre_nonlinearity: boolean flag indicating that it should checked
-             whether the selected output is post activation function.
-             If a non-linear activation function is used attempt to use its input.
-          filter_idx: Filter index that should be inspected with gradients.
-             If not set all filters will be used.
-          avg_func: Averaging function to be applied across selected filters
-             (`--filter_idx`) in layer `--layer`."
-          selected_fwd_node: If the selected layer has multiple inbound
-             connections in the graph then those can be selected here with an integer
-             index. Not necessarily supported by all models.
-        """
         self.model = model
 
         self.filter_idx = filter_idx
@@ -40,7 +41,7 @@ class Gradient(ImportanceScore):
     def is_compatible(self, model):
         """Requires the gradient method to be implemented
 
-        Args:
+        # Arguments
           model: Model instance or ModelDescription
         """
         if hasattr(model, 'input_grad'):
@@ -50,11 +51,12 @@ class Gradient(ImportanceScore):
         return False
 
     def score(self, input_batch):
-        """
-        Calculate gradients of a given input sequence.
-        Args:
+        """Calculate gradients of a given input sequence.
+
+        # Arguments
           input_batch: Model input data
-        Returns:
+
+        # Returns
           Gradients in the same shape / same containers as the input batch.
         """
         return self.model.input_grad(input_batch,
@@ -67,7 +69,9 @@ class Gradient(ImportanceScore):
 
 
 class GradientXInput(Gradient):
-    # AbstractGrads implements the
+    """Mask the gradient by the input value: grad * input, where input
+    is typically a one-hot-encoded array.
+    """
 
     def score(self, input_batch):
         return nested_mul(super(GradientXInput, self).score(input_batch),
@@ -75,6 +79,8 @@ class GradientXInput(Gradient):
 
 
 class Saliency(Gradient):
+    """Saliency map: absolute value of gradients w.r.t. input
+    """
 
     def score(self, input_batch):
         # TODO - apply the abs function to all list/dict elements if necessary

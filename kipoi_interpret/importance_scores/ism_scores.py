@@ -61,6 +61,9 @@ class RCScore(Score):
 
 
 class Logit(RCScore):
+    """`logit` - Compute the difference on the logit scale: `logit_diff = log(p_alt / (1 - p_alt )) - log(p_ref / (1 - p_ref ))`
+    """
+
     def __call__(self, ref, alt, ref_rc=None, alt_rc=None):
         preds = {"ref": ref, "ref_rc": ref_rc, "alt": alt, "alt_rc": alt_rc}
         if np.any([(preds[k].min() < 0 or preds[k].max() > 1) for k in preds if preds[k] is not None]):
@@ -75,6 +78,9 @@ class Logit(RCScore):
 
 
 class LogitAlt(RCScore):
+    """`logit_alt` - Alt. allele prediction on the logit scale: `np.log(p_alt / (1 - p_alt ))`
+    """
+
     def __call__(self, ref, alt, ref_rc=None, alt_rc=None):
         preds = {"ref": ref, "ref_rc": ref_rc, "alt": alt, "alt_rc": alt_rc}
         if np.any([(preds[k].min() < 0 or preds[k].max() > 1) for k in preds if preds[k] is not None]):
@@ -89,6 +95,9 @@ class LogitAlt(RCScore):
 
 
 class LogitRef(RCScore):
+    """`logit_ref` - Ref. allele prediction on the logit scale: `np.log(p_alt / (1 - p_alt ))`
+    """
+
     def __call__(self, ref, alt, ref_rc=None, alt_rc=None):
         preds = {"ref": ref, "ref_rc": ref_rc, "alt": alt, "alt_rc": alt_rc}
         if np.any([(preds[k].min() < 0 or preds[k].max() > 1) for k in preds if preds[k] is not None]):
@@ -103,6 +112,9 @@ class LogitRef(RCScore):
 
 
 class Alt(RCScore):
+    """`alt` - Alt. allele prediction
+    """
+
     def __call__(self, ref, alt, ref_rc=None, alt_rc=None):
         alt_out = alt
         if alt_rc is not None:
@@ -111,6 +123,9 @@ class Alt(RCScore):
 
 
 class Ref(RCScore):
+    """`ref` - Ref. allele prediction
+    """
+
     def __call__(self, ref, alt, ref_rc=None, alt_rc=None):
         ref_out = ref
         if ref_rc is not None:
@@ -119,6 +134,9 @@ class Ref(RCScore):
 
 
 class Diff(RCScore):
+    """`diff` - Prediction difference: `diff = p_alt - p_ref`
+    """
+
     def __call__(self, ref, alt, ref_rc=None, alt_rc=None):
         preds = {"ref": ref, "ref_rc": ref_rc, "alt": alt, "alt_rc": alt_rc}
         diffs = preds["alt"] - preds["ref"]
@@ -131,6 +149,9 @@ class Diff(RCScore):
 
 
 class DeepSEA_effect(RCScore):
+    """`deepsea_effect` - Score used by DeepSEA: `abs(logit_diff) * abs(diff)`
+    """
+
     def __call__(self, ref, alt, ref_rc=None, alt_rc=None):
         if ref_rc is None or alt_rc is None:
             raise Exception("DeepSEA_effect can only be computed if outputs for reverse complements are available.")
@@ -149,6 +170,7 @@ class DeepSEA_effect(RCScore):
             # self.rc_merging(np.abs(logit_diffs) * np.abs(diffs), np.abs(logit_diffs_rc) * np.abs(diffs_rc))
 
         return np.abs(logit_diffs) * np.abs(diffs)
+
 
 builtin_default_kwargs = {"rc_merging": "mean"}
 
