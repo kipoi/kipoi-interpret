@@ -18,7 +18,7 @@ set -eou pipefail
 BRANCH="master"
 ORIGIN="kipoi.github.io"
 GITHUB_USERNAME="kipoi"
-TARGET_FOLDER="docs/interpret"
+TARGET_FOLDER="interpret-docs"
 
 # DOCSOURCE is directory containing the Makefile, relative to the directory
 # containing this bash script.
