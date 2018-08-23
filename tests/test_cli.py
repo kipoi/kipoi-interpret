@@ -44,7 +44,7 @@ def test_parse_filter_slice():
 
 
 @pytest.mark.parametrize("example", list(predict_activation_layers))
-def test_grad_predict_example(example):
+def test_grad_predict_example(example, tmpdir):
     """kipoi grad ...
     """
     if example in {"rbp", "non_bedinput_model", "iris_model_template"} and sys.version_info[0] == 2:
@@ -54,8 +54,7 @@ def test_grad_predict_example(example):
 
     for file_format in ["tsv", "hdf5"]:
         print(example)
-        tmpfile = os.path.realpath(str("./grad_outputs.{0}".format(file_format)))
-        bedgraph_temp_file = os.path.realpath(str("./grad_x_input.bed"))
+        tmpfile = os.path.join(str(tmpdir), os.path.realpath(str("./grad_outputs.{0}".format(file_format))))
 
         # run the
         args = ["python", os.path.abspath("./kipoi_interpret/cli.py"),
@@ -86,7 +85,7 @@ def test_grad_predict_example(example):
             continue
 
 
-def test_deeplift_predict_example():
+def test_deeplift_predict_example(tmpdir):
     """kipoi grad ...
     """
     example = "tal1_model"
@@ -96,7 +95,7 @@ def test_deeplift_predict_example():
 
     for file_format in ["tsv", "hdf5"]:
         print(example)
-        tmpfile = os.path.realpath(str("./grad_outputs.{0}".format(file_format)))
+        tmpfile = os.path.join(str(tmpdir), os.path.realpath(str("./grad_outputs.{0}".format(file_format))))
 
         # run the
         args = ["python", os.path.abspath("./kipoi_interpret/cli.py"),
@@ -112,23 +111,19 @@ def test_deeplift_predict_example():
         if INSTALL_FLAG:
             args.append(INSTALL_FLAG)
 
-
         if os.path.exists(tmpfile):
             os.unlink(tmpfile)
 
         returncode = subprocess.call(args=args, cwd=os.path.realpath(example_dir + "/example_files"))
         assert returncode == 0
 
-        #assert os.path.exists(tmpfile)
         if os.path.exists(tmpfile):
             os.unlink(tmpfile)
 
 
-
-
 @pytest.mark.parametrize("example", list(predict_activation_layers))
 @pytest.mark.parametrize("use_output_sel", [False, True])
-def test_ism_predict_example(example, use_output_sel):
+def test_ism_predict_example(example, use_output_sel, tmpdir):
     """kipoi grad ...
     """
     if example in {"rbp", "non_bedinput_model", "iris_model_template"} and sys.version_info[0] == 2:
@@ -141,8 +136,7 @@ def test_ism_predict_example(example, use_output_sel):
         model_input_name = "input"
 
     for file_format in ["tsv", "hdf5"]:
-        print(example)
-        tmpfile = os.path.realpath(str("./grad_outputs.{0}".format(file_format)))
+        tmpfile = os.path.join(str(tmpdir), os.path.realpath(str("./grad_outputs.{0}".format(file_format))))
 
         # run the
         args = ["python", os.path.abspath("./kipoi_interpret/cli.py"),
@@ -150,7 +144,7 @@ def test_ism_predict_example(example, use_output_sel):
                 "../",  # directory
                 "--source=dir",
                 "--batch_size=4",
-                "--model_input="+ model_input_name,
+                "--model_input=" + model_input_name,
                 "--dataloader_args=test.json",
                 "--output", tmpfile]
 
@@ -160,13 +154,11 @@ def test_ism_predict_example(example, use_output_sel):
         if INSTALL_FLAG:
             args.append(INSTALL_FLAG)
 
-
         if os.path.exists(tmpfile):
             os.unlink(tmpfile)
 
         returncode = subprocess.call(args=args, cwd=os.path.realpath(example_dir + "/example_files"))
         assert returncode == 0
 
-        #assert os.path.exists(tmpfile)
         if os.path.exists(tmpfile):
             os.unlink(tmpfile)
