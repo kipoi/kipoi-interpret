@@ -84,7 +84,7 @@ class Saliency(Gradient):
 
     def score(self, input_batch):
         # TODO - apply the abs function to all list/dict elements if necessary
-        return np.abs(super(Saliency, self).score(self, input_batch))
+        return np.abs(super(Saliency, self).score(input_batch))
 
 
 METHODS = {"saliency": Saliency,
