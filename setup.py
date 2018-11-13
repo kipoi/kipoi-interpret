@@ -34,7 +34,7 @@ test_requirements = [
 
 setup(
     name='kipoi_interpret',
-    version='0.1.0',
+    version='0.1.1',
     description="Kipoi interpret: interepretation plugin for Kipoi",
     author="Kipoi team",
     author_email='avsec@in.tum.de',
