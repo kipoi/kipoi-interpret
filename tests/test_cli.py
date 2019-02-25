@@ -127,20 +127,16 @@ def test_deeplift_predict_example(tmpdir):
 def test_ism_predict_example(example, use_output_sel, tmpdir):
     """kipoi grad ...
     """
-    print("A")
     if example in {"rbp", "non_bedinput_model", "iris_model_template"} and sys.version_info[0] == 2:
         pytest.skip("rbp example not supported on python 2 ")
 
-    print("B")
     example_dir = "tests/models/{0}".format(example)
     if example == "rbp":
         model_input_name = "seq"
     else:
         model_input_name = "input"
 
-    print("C")
     for file_format in ["tsv", "hdf5"]:
-        print('file_format',file_format)
         tmpfile = os.path.join(str(tmpdir), str("./grad_outputs.{0}".format(file_format)))
 
         # run the
@@ -153,22 +149,17 @@ def test_ism_predict_example(example, use_output_sel, tmpdir):
                 "--dataloader_args=test.json",
                 "--output", tmpfile]
 
-        print("D")
         if use_output_sel:
             args.append("--output_sel_fn=out_sel_fn.py::sel")
 
-        print("E")
         if INSTALL_FLAG:
             args.append(INSTALL_FLAG)
 
-        print("F")
         if os.path.exists(tmpfile):
             os.unlink(tmpfile)
 
-        print("G")
         returncode = subprocess.call(args=args, cwd=os.path.realpath(example_dir + "/example_files"))
         assert returncode == 0
 
-        print("H")
         if os.path.exists(tmpfile):
             os.unlink(tmpfile)

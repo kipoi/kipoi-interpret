@@ -42,8 +42,8 @@ variables:
       name: Run tests
       command: |
         mkdir test-reports
-        # py.test --cov=kipoi_interpret/ tests/ -n 1 --no-cov-on-fail --junitxml=test-reports/junit.xml
-        pytest tests/ -v -s
+        py.test --cov=kipoi_interpret/ tests/ -n 1 --no-cov-on-fail --junitxml=test-reports/junit.xml
+      no_output_timeout: 20m
   run_coveralls: &run_coveralls
     run:
       name: run coveralls
