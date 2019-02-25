@@ -43,7 +43,7 @@ variables:
       command: |
         mkdir test-reports
         # py.test --cov=kipoi_interpret/ tests/ -n 1 --no-cov-on-fail --junitxml=test-reports/junit.xml
-        pytest tests/ -v
+        pytest tests/ -v -s
   run_coveralls: &run_coveralls
     run:
       name: run coveralls
