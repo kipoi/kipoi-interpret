@@ -14,7 +14,7 @@ from tqdm import tqdm
 import kipoi
 from kipoi.cli.parser_utils import add_model, add_dataloader, file_exists, dir_exists
 from kipoi import writers
-from kipoi.utils import parse_json_file_str, load_module
+from kipoi_utils.utils import parse_json_file_str, load_module
 import numpy as np
 
 logger = logging.getLogger(__name__)

@@ -1,9 +1,9 @@
 from __future__ import division, absolute_import, print_function
 from .base import ImportanceScore
 import numpy as np
-from kipoi.data_utils import numpy_collate_concat, numpy_collate
+from kipoi_utils.data_utils import numpy_collate_concat, numpy_collate
 from kipoi_interpret.utils import get_model_input, set_model_input
-from kipoi.data_utils import get_dataset_item, get_dataset_lens
+from kipoi_utils.data_utils import get_dataset_item, get_dataset_lens
 from kipoi_interpret.utils import apply_within
 from .ism_scores import Score
 import copy

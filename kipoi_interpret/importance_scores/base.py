@@ -1,7 +1,7 @@
 from __future__ import division, absolute_import, print_function
 from tqdm import tqdm
-from kipoi.utils import merge_dicts
-from kipoi.data_utils import numpy_collate_concat
+from kipoi_utils.utils import merge_dicts
+from kipoi_utils.data_utils import numpy_collate_concat
 import abc
 # Abstract declaration of different interpretation APIs, plus any
 # common functionality

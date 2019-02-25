@@ -5,7 +5,8 @@ from setuptools import setup, find_packages
 
 
 requirements = [
-    "kipoi",
+    "kipoi>=0.6.7",
+    "kipoi-utils>=0.1.1",
     "tqdm",
     "matplotlib",
     "seaborn",
