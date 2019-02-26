@@ -2,7 +2,7 @@ from __future__ import division, absolute_import, print_function
 from .base import ImportanceScoreWRef
 from .gradient import Gradient
 from kipoi.model import KerasModel, TensorFlowModel
-from kipoi.data_utils import numpy_collate
+from kipoi_utils.data_utils import numpy_collate
 
 import tempfile
 import numpy as np

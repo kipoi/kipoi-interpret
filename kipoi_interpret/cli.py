@@ -13,8 +13,8 @@ from kipoi_interpret.importance_scores.cli import cli_feature_importance, cli_de
 import kipoi
 from kipoi.cli.parser_utils import add_model, add_dataloader, file_exists, dir_exists
 from kipoi import writers
-from kipoi.utils import cd
-from kipoi.utils import parse_json_file_str
+from kipoi_utils.utils import cd
+from kipoi_utils.utils import parse_json_file_str
 
 logger = logging.getLogger(__name__)
 logger.addHandler(logging.NullHandler())
